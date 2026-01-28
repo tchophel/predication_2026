@@ -86,18 +86,29 @@ class PredictionCreateSerializer(serializers.ModelSerializer):
             if not config or not config.enabled:
                 raise serializers.ValidationError(TWO_STAR_DISABLED_MESSAGE)
             
-            tournament_usage = Prediction.get_user_two_star_usage(user, match.tournament)
-            global_usage = Prediction.get_user_two_star_usage(user)
-            
-            if tournament_usage >= config.max_per_user_per_tournament:
-                raise serializers.ValidationError(
-                    f"You have reached the maximum Two-Star predictions ({config.max_per_user_per_tournament}) for this tournament"
-                )
-            
-            if global_usage >= config.max_per_user_global:
-                raise serializers.ValidationError(
-                    f"You have reached the maximum Two-Star predictions ({config.max_per_user_global}) overall"
-                )
+            # For the current Match model structure, we don't have a real Tournament object
+            # So we'll use a simplified approach based on the match properties
+            try:
+                # Only count stars for finished matches, not for predictions
+                if match.status != 'finished':
+                    # For upcoming matches, don't count against star limits yet
+                    # Stars are only consumed when match is finished
+                    pass
+                else:
+                    # For finished matches, check star usage
+                    global_usage = Prediction.get_user_two_star_usage(user)
+                    
+                    if global_usage >= config.max_per_user_global:
+                        raise serializers.ValidationError(
+                            f"You have reached the maximum 1-Star predictions ({config.max_per_user_global}) overall"
+                        )
+                
+                # For now, allow tournament usage up to global limit
+                # TODO: Update this when proper tournament relationships are established
+            except Exception as e:
+                # If there's any error in two-star validation, disable it for safety
+                print(f"Two-star validation error: {e}")
+                raise serializers.ValidationError("1-Star feature temporarily unavailable")
         
         return attrs
 
@@ -123,18 +134,21 @@ class PredictionUpdateSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(TWO_STAR_DISABLED_MESSAGE)
             
             user = self.context['request'].user
-            tournament_usage = Prediction.get_user_two_star_usage(user, self.instance.match.tournament)
-            global_usage = Prediction.get_user_two_star_usage(user)
-            
-            if tournament_usage >= config.max_per_user_per_tournament:
-                raise serializers.ValidationError(
-                    f"You have reached the maximum Two-Star predictions ({config.max_per_user_per_tournament}) for this tournament"
-                )
-            
-            if global_usage >= config.max_per_user_global:
-                raise serializers.ValidationError(
-                    f"You have reached the maximum Two-Star predictions ({config.max_per_user_global}) overall"
-                )
+            try:
+                # For current Match model structure, we don't have a real Tournament object
+                global_usage = Prediction.get_user_two_star_usage(user)
+                
+                if global_usage >= config.max_per_user_global:
+                    raise serializers.ValidationError(
+                        f"You have reached the maximum Two-Star predictions ({config.max_per_user_global}) overall"
+                    )
+                
+                # For now, allow tournament usage up to global limit
+                # TODO: Update this when proper tournament relationships are established
+            except Exception as e:
+                # If there's any error in two-star validation, disable it for safety
+                print(f"Two-star validation error: {e}")
+                raise serializers.ValidationError("1-Star feature temporarily unavailable")
         
         return attrs
 

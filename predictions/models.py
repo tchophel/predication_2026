@@ -3,11 +3,10 @@ from django.db import transaction
 from django.conf import settings
 from matches.models import Match
 
-
 class TwoStarConfig(models.Model):
     enabled = models.BooleanField(default=True)
-    max_per_user_per_tournament = models.IntegerField(default=3)
-    max_per_user_global = models.IntegerField(default=10)
+    max_per_user_per_tournament = models.IntegerField(default=2)
+    max_per_user_global = models.IntegerField(default=2)
     description = models.TextField(blank=True, help_text="Description shown to users about 2-Star feature")
     
     class Meta:
@@ -39,7 +38,7 @@ class Prediction(models.Model):
         return self.match.can_predict()
     
     def calculate_base_points(self):
-        if self.match.status != 'finished' or self.match.score_a is None:
+        if self.match.status not in ['finished', 'completed'] or self.match.score_a is None:
             return 0
         
         actual_a = self.match.score_a
@@ -89,10 +88,15 @@ class Prediction(models.Model):
         self.points_awarded = points
         self.save()
         
-        # Update user's total points
+        # Update user's total points by recalculating from all predictions
+        from django.db.models import Sum
         with transaction.atomic():
             user = self.user
-            user.total_points += points
+            actual_total = Prediction.objects.filter(
+                user=user,
+                points_awarded__isnull=False
+            ).aggregate(total=Sum('points_awarded'))['total'] or 0
+            user.total_points = actual_total
             user.save()
         
         return points

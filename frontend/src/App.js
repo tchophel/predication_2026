@@ -6,12 +6,16 @@ import { DashboardLayout } from './components/DashboardLayout';
 import { Home } from './components/Home';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { ResetPassword } from './pages/ResetPassword';
 import { Dashboard } from './pages/Dashboard';
 import { Matches } from './pages/Matches';
 import { Predictions } from './pages/Predictions';
 import { Leaderboard } from './pages/Leaderboard';
 import { Users } from './pages/Users';
 import { MatchManagement } from './pages/MatchManagement';
+import { PredictionList } from './pages/PredictionList';
+import { Settings } from './pages/Settings';
+import { Chat } from './pages/Chat';
 
 function App() {
   return (
@@ -31,61 +35,66 @@ function App() {
                 <Register />
               </PublicRoute>
             } />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Protected routes with dashboard layout */}
             <Route path="/dashboard" element={
               <ProtectedRoute>
-                <DashboardLayout>
-                  <Dashboard />
-                </DashboardLayout>
+                <Dashboard />
               </ProtectedRoute>
             } />
             
             <Route path="/matches" element={
               <ProtectedRoute>
-                <DashboardLayout>
-                  <Matches />
-                </DashboardLayout>
+                <Matches />
               </ProtectedRoute>
             } />
             
             <Route path="/predictions" element={
               <ProtectedRoute>
-                <DashboardLayout>
-                  <Predictions />
-                </DashboardLayout>
+                <Predictions />
               </ProtectedRoute>
             } />
             
             <Route path="/leaderboard" element={
               <ProtectedRoute>
-                <DashboardLayout>
-                  <Leaderboard />
-                </DashboardLayout>
+                <Leaderboard />
               </ProtectedRoute>
             } />
             
             <Route path="/admin" element={
               <ProtectedRoute>
-                <DashboardLayout>
-                  <Dashboard />
-                </DashboardLayout>
+                <Dashboard />
               </ProtectedRoute>
             } />
             
             <Route path="/users" element={
               <ProtectedRoute>
-                <DashboardLayout>
-                  <Users />
-                </DashboardLayout>
+                <Users />
               </ProtectedRoute>
             } />
             
             <Route path="/matching" element={
               <ProtectedRoute>
-                <DashboardLayout>
-                  <MatchManagement />
-                </DashboardLayout>
+                <MatchManagement />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/prediction-list" element={
+              <ProtectedRoute>
+                <PredictionList />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/chat" element={
+              <ProtectedRoute>
+                <Chat />
               </ProtectedRoute>
             } />
             

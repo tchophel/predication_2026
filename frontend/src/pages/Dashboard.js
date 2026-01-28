@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
-import { Trophy, Clock, Star, TrendingUp, Globe, Search, Users, Calendar, BarChart3, FileText, Upload } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { Trophy, Clock, Star, TrendingUp, Users, Calendar, FileText, MessageSquare, Menu, Zap, Award, Target, Globe } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Users as UsersManagement } from './Users';
 import { Navbar } from '../components/Navbar';
+import { Sidebar } from '../components/Sidebar';
 
 export const Dashboard = () => {
   const { user } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const isAdmin = user?.username === 'admin';
   const isOnAdminRoute = location.pathname === '/admin';
@@ -35,66 +37,66 @@ export const Dashboard = () => {
   // World Cup 2026 Teams (48 teams)
   const worldCup2026Teams = useMemo(() => [
     // CONCACAF (6 slots)
-    { name: "United States", country: "United States", badge: "https://crests.football-data.org/USA.svg", confederation: "CONCACAF", status: "Host" },
-    { name: "Canada", country: "Canada", badge: "https://crests.football-data.org/CAN.svg", confederation: "CONCACAF", status: "Host" },
-    { name: "Mexico", country: "Mexico", badge: "https://crests.football-data.org/MEX.svg", confederation: "CONCACAF", status: "Host" },
-    { name: "Costa Rica", country: "Costa Rica", badge: "https://crests.football-data.org/CRI.svg", confederation: "CONCACAF", status: "Likely" },
-    { name: "Jamaica", country: "Jamaica", badge: "https://crests.football-data.org/JAM.svg", confederation: "CONCACAF", status: "Likely" },
-    { name: "Panama", country: "Panama", badge: "https://crests.football-data.org/PAN.svg", confederation: "CONCACAF", status: "Likely" },
+    { name: "United States", country: "United States", badge: "https://flagcdn.com/w80/us.png", confederation: "CONCACAF", status: "Host" },
+    { name: "Canada", country: "Canada", badge: "https://flagcdn.com/w80/ca.png", confederation: "CONCACAF", status: "Host" },
+    { name: "Mexico", country: "Mexico", badge: "https://flagcdn.com/w80/mx.png", confederation: "CONCACAF", status: "Host" },
+    { name: "Costa Rica", country: "Costa Rica", badge: "https://flagcdn.com/w80/cr.png", confederation: "CONCACAF", status: "Likely" },
+    { name: "Jamaica", country: "Jamaica", badge: "https://flagcdn.com/w80/jm.png", confederation: "CONCACAF", status: "Likely" },
+    { name: "Panama", country: "Panama", badge: "https://flagcdn.com/w80/pa.png", confederation: "CONCACAF", status: "Likely" },
     
     // UEFA (16 slots)
-    { name: "Germany", country: "Germany", badge: "https://crests.football-data.org/759.svg", confederation: "UEFA", status: "Likely" },
-    { name: "France", country: "France", badge: "https://crests.football-data.org/773.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Spain", country: "Spain", badge: "https://crests.football-data.org/760.svg", confederation: "UEFA", status: "Likely" },
-    { name: "England", country: "England", badge: "https://crests.football-data.org/770.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Italy", country: "Italy", badge: "https://crests.football-data.org/784.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Portugal", country: "Portugal", badge: "https://crests.football-data.org/765.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Netherlands", country: "Netherlands", badge: "https://crests.football-data.org/8601.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Belgium", country: "Belgium", badge: "https://crests.football-data.org/805.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Croatia", country: "Croatia", badge: "https://crests.football-data.org/799.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Denmark", country: "Denmark", badge: "https://crests.football-data.org/782.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Switzerland", country: "Switzerland", badge: "https://crests.football-data.org/788.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Austria", country: "Austria", badge: "https://crests.football-data.org/754.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Poland", country: "Poland", badge: "https://crests.football-data.org/794.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Ukraine", country: "Ukraine", badge: "https://crests.football-data.org/UKR.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Sweden", country: "Sweden", badge: "https://crests.football-data.org/792.svg", confederation: "UEFA", status: "Likely" },
-    { name: "Serbia", country: "Serbia", badge: "https://crests.football-data.org/SRB.svg", confederation: "UEFA", status: "Likely" },
+    { name: "Germany", country: "Germany", badge: "https://flagcdn.com/w80/de.png", confederation: "UEFA", status: "Likely" },
+    { name: "France", country: "France", badge: "https://flagcdn.com/w80/fr.png", confederation: "UEFA", status: "Likely" },
+    { name: "Spain", country: "Spain", badge: "https://flagcdn.com/w80/es.png", confederation: "UEFA", status: "Likely" },
+    { name: "England", country: "England", badge: "https://flagcdn.com/w80/gb-eng.png", confederation: "UEFA", status: "Likely" },
+    { name: "Italy", country: "Italy", badge: "https://flagcdn.com/w80/it.png", confederation: "UEFA", status: "Likely" },
+    { name: "Portugal", country: "Portugal", badge: "https://flagcdn.com/w80/pt.png", confederation: "UEFA", status: "Likely" },
+    { name: "Netherlands", country: "Netherlands", badge: "https://flagcdn.com/w80/nl.png", confederation: "UEFA", status: "Likely" },
+    { name: "Belgium", country: "Belgium", badge: "https://flagcdn.com/w80/be.png", confederation: "UEFA", status: "Likely" },
+    { name: "Croatia", country: "Croatia", badge: "https://flagcdn.com/w80/hr.png", confederation: "UEFA", status: "Likely" },
+    { name: "Denmark", country: "Denmark", badge: "https://flagcdn.com/w80/dk.png", confederation: "UEFA", status: "Likely" },
+    { name: "Switzerland", country: "Switzerland", badge: "https://flagcdn.com/w80/ch.png", confederation: "UEFA", status: "Likely" },
+    { name: "Austria", country: "Austria", badge: "https://flagcdn.com/w80/at.png", confederation: "UEFA", status: "Likely" },
+    { name: "Poland", country: "Poland", badge: "https://flagcdn.com/w80/pl.png", confederation: "UEFA", status: "Likely" },
+    { name: "Ukraine", country: "Ukraine", badge: "https://flagcdn.com/w80/ua.png", confederation: "UEFA", status: "Likely" },
+    { name: "Sweden", country: "Sweden", badge: "https://flagcdn.com/w80/se.png", confederation: "UEFA", status: "Likely" },
+    { name: "Serbia", country: "Serbia", badge: "https://flagcdn.com/w80/rs.png", confederation: "UEFA", status: "Likely" },
     
     // CONMEBOL (6 slots)
-    { name: "Argentina", country: "Argentina", badge: "https://crests.football-data.org/783.svg", confederation: "CONMEBOL", status: "Likely" },
-    { name: "Brazil", country: "Brazil", badge: "https://crests.football-data.org/781.svg", confederation: "CONMEBOL", status: "Likely" },
-    { name: "Uruguay", country: "Uruguay", badge: "https://crests.football-data.org/URY.svg", confederation: "CONMEBOL", status: "Likely" },
-    { name: "Colombia", country: "Colombia", badge: "https://crests.football-data.org/COL.svg", confederation: "CONMEBOL", status: "Likely" },
-    { name: "Ecuador", country: "Ecuador", badge: "https://crests.football-data.org/ECU.svg", confederation: "CONMEBOL", status: "Likely" },
-    { name: "Chile", country: "Chile", badge: "https://crests.football-data.org/CHI.svg", confederation: "CONMEBOL", status: "Likely" },
+    { name: "Argentina", country: "Argentina", badge: "https://flagcdn.com/w80/ar.png", confederation: "CONMEBOL", status: "Likely" },
+    { name: "Brazil", country: "Brazil", badge: "https://flagcdn.com/w80/br.png", confederation: "CONMEBOL", status: "Likely" },
+    { name: "Uruguay", country: "Uruguay", badge: "https://flagcdn.com/w80/uy.png", confederation: "CONMEBOL", status: "Likely" },
+    { name: "Colombia", country: "Colombia", badge: "https://flagcdn.com/w80/co.png", confederation: "CONMEBOL", status: "Likely" },
+    { name: "Ecuador", country: "Ecuador", badge: "https://flagcdn.com/w80/ec.png", confederation: "CONMEBOL", status: "Likely" },
+    { name: "Chile", country: "Chile", badge: "https://flagcdn.com/w80/cl.png", confederation: "CONMEBOL", status: "Likely" },
     
     // CAF (9 slots)
-    { name: "Senegal", country: "Senegal", badge: "https://crests.football-data.org/SEN.svg", confederation: "CAF", status: "Likely" },
-    { name: "Morocco", country: "Morocco", badge: "https://crests.football-data.org/MAR.svg", confederation: "CAF", status: "Likely" },
-    { name: "Tunisia", country: "Tunisia", badge: "https://crests.football-data.org/TUN.svg", confederation: "CAF", status: "Likely" },
-    { name: "Egypt", country: "Egypt", badge: "https://crests.football-data.org/EGY.svg", confederation: "CAF", status: "Likely" },
-    { name: "Nigeria", country: "Nigeria", badge: "https://crests.football-data.org/NGA.svg", confederation: "CAF", status: "Likely" },
-    { name: "Cameroon", country: "Cameroon", badge: "https://crests.football-data.org/CMR.svg", confederation: "CAF", status: "Likely" },
-    { name: "Ghana", country: "Ghana", badge: "https://crests.football-data.org/GHA.svg", confederation: "CAF", status: "Likely" },
-    { name: "Algeria", country: "Algeria", badge: "https://crests.football-data.org/ALG.svg", confederation: "CAF", status: "Likely" },
-    { name: "Ivory Coast", country: "Ivory Coast", badge: "https://crests.football-data.org/CIV.svg", confederation: "CAF", status: "Likely" },
+    { name: "Senegal", country: "Senegal", badge: "https://flagcdn.com/w80/sn.png", confederation: "CAF", status: "Likely" },
+    { name: "Morocco", country: "Morocco", badge: "https://flagcdn.com/w80/ma.png", confederation: "CAF", status: "Likely" },
+    { name: "Tunisia", country: "Tunisia", badge: "https://flagcdn.com/w80/tn.png", confederation: "CAF", status: "Likely" },
+    { name: "Egypt", country: "Egypt", badge: "https://flagcdn.com/w80/eg.png", confederation: "CAF", status: "Likely" },
+    { name: "Nigeria", country: "Nigeria", badge: "https://flagcdn.com/w80/ng.png", confederation: "CAF", status: "Likely" },
+    { name: "Cameroon", country: "Cameroon", badge: "https://flagcdn.com/w80/cm.png", confederation: "CAF", status: "Likely" },
+    { name: "Ghana", country: "Ghana", badge: "https://flagcdn.com/w80/gh.png", confederation: "CAF", status: "Likely" },
+    { name: "Algeria", country: "Algeria", badge: "https://flagcdn.com/w80/dz.png", confederation: "CAF", status: "Likely" },
+    { name: "Ivory Coast", country: "Ivory Coast", badge: "https://flagcdn.com/w80/ci.png", confederation: "CAF", status: "Likely" },
     
     // AFC (8 slots)
-    { name: "Japan", country: "Japan", badge: "https://crests.football-data.org/JPN.svg", confederation: "AFC", status: "Likely" },
-    { name: "South Korea", country: "South Korea", badge: "https://crests.football-data.org/KOR.svg", confederation: "AFC", status: "Likely" },
-    { name: "Iran", country: "Iran", badge: "https://crests.football-data.org/IRN.svg", confederation: "AFC", status: "Likely" },
-    { name: "Australia", country: "Australia", badge: "https://crests.football-data.org/AUS.svg", confederation: "AFC", status: "Likely" },
-    { name: "Saudi Arabia", country: "Saudi Arabia", badge: "https://crests.football-data.org/KSA.svg", confederation: "AFC", status: "Likely" },
-    { name: "Qatar", country: "Qatar", badge: "https://crests.football-data.org/QAT.svg", confederation: "AFC", status: "Likely" },
-    { name: "Iraq", country: "Iraq", badge: "https://crests.football-data.org/IRQ.svg", confederation: "AFC", status: "Likely" },
-    { name: "United Arab Emirates", country: "UAE", badge: "https://crests.football-data.org/UAE.svg", confederation: "AFC", status: "Likely" },
+    { name: "Japan", country: "Japan", badge: "https://flagcdn.com/w80/jp.png", confederation: "AFC", status: "Likely" },
+    { name: "South Korea", country: "South Korea", badge: "https://flagcdn.com/w80/kr.png", confederation: "AFC", status: "Likely" },
+    { name: "Iran", country: "Iran", badge: "https://flagcdn.com/w80/ir.png", confederation: "AFC", status: "Likely" },
+    { name: "Australia", country: "Australia", badge: "https://flagcdn.com/w80/au.png", confederation: "AFC", status: "Likely" },
+    { name: "Saudi Arabia", country: "Saudi Arabia", badge: "https://flagcdn.com/w80/sa.png", confederation: "AFC", status: "Likely" },
+    { name: "Qatar", country: "Qatar", badge: "https://flagcdn.com/w80/qa.png", confederation: "AFC", status: "Likely" },
+    { name: "Iraq", country: "Iraq", badge: "https://flagcdn.com/w80/iq.png", confederation: "AFC", status: "Likely" },
+    { name: "United Arab Emirates", country: "UAE", badge: "https://flagcdn.com/w80/ae.png", confederation: "AFC", status: "Likely" },
     
     // OFC (1 slot)
-    { name: "New Zealand", country: "New Zealand", badge: "https://crests.football-data.org/NZL.svg", confederation: "OFC", status: "Likely" },
+    { name: "New Zealand", country: "New Zealand", badge: "https://flagcdn.com/w80/nz.png", confederation: "OFC", status: "Likely" },
     
     // Playoff Winners (2 slots)
-    { name: "Wales", country: "Wales", badge: "https://crests.football-data.org/WAL.svg", confederation: "UEFA", status: "Playoff" },
-    { name: "Peru", country: "Peru", badge: "https://crests.football-data.org/PER.svg", confederation: "CONMEBOL", status: "Playoff" },
+    { name: "Wales", country: "Wales", badge: "https://flagcdn.com/w80/gb-wls.png", confederation: "UEFA", status: "Playoff" },
+    { name: "Peru", country: "Peru", badge: "https://flagcdn.com/w80/pe.png", confederation: "CONMEBOL", status: "Playoff" },
   ], []);
 
   const fetchWorldCupTeams = useCallback(async () => {
@@ -138,20 +140,88 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        setStats({
-          total_predictions: 12,
-          correct_predictions: 7,
-          two_star_used: 2,
-          upcoming_matches: 3
-        });
+        const token = localStorage.getItem('authToken');
         
-        if (isAdmin) {
-          setAdminStats({
-            total_users: 156,
-            total_matches: 48,
-            total_predictions: 1243,
-            paid_users: 89
-          });
+        // Fetch user stats from database
+        if (token) {
+          try {
+            const predictionsResponse = await fetch('http://localhost:8000/api/predictions/my/', {
+              headers: {
+                'Authorization': `Token ${token}`
+              }
+            });
+            
+            if (predictionsResponse.ok) {
+              const userPredictions = await predictionsResponse.json();
+              const totalPredictions = Array.isArray(userPredictions) ? userPredictions.length : 0;
+              const correctPredictions = Array.isArray(userPredictions) ? 
+                userPredictions.filter(pred => pred.points_awarded && pred.points_awarded > 0).length : 0;
+              const twoStarUsed = Array.isArray(userPredictions) ? 
+                userPredictions.filter(pred => pred.used_two_star).length : 0;
+              
+              setStats({
+                total_predictions: totalPredictions,
+                correct_predictions: correctPredictions,
+                two_star_used: twoStarUsed,
+                upcoming_matches: 0 // Will be updated below
+              });
+            }
+          } catch (error) {
+            console.error('Error fetching user predictions for stats:', error);
+          }
+          
+          // Fetch upcoming matches count
+          try {
+            const matchesResponse = await fetch('http://localhost:8000/api/matches/', {
+              headers: {
+                'Authorization': `Token ${token}`
+              }
+            });
+            
+            if (matchesResponse.ok) {
+              const matches = await matchesResponse.json();
+              const now = new Date();
+              const upcomingMatches = Array.isArray(matches) ? 
+                matches.filter(match => new Date(match.start_time) > now).length : 0;
+              
+              setStats(prev => ({
+                ...prev,
+                upcoming_matches: upcomingMatches
+              }));
+            }
+          } catch (error) {
+            console.error('Error fetching matches for stats:', error);
+          }
+        }
+        
+        // Fetch admin stats if user is admin
+        if (isAdmin && token) {
+          try {
+            const [usersResponse, matchesResponse, predictionsResponse] = await Promise.all([
+              fetch('http://localhost:8000/api/auth/users/', {
+                headers: { 'Authorization': `Token ${token}` }
+              }),
+              fetch('http://localhost:8000/api/matches/', {
+                headers: { 'Authorization': `Token ${token}` }
+              }),
+              fetch('http://localhost:8000/api/predictions/all/', {
+                headers: { 'Authorization': `Token ${token}` }
+              })
+            ]);
+            
+            const usersData = usersResponse.ok ? await usersResponse.json() : [];
+            const matchesData = matchesResponse.ok ? await matchesResponse.json() : [];
+            const predictionsData = predictionsResponse.ok ? await predictionsResponse.json() : [];
+            
+            setAdminStats({
+              total_users: Array.isArray(usersData) ? usersData.length : 0,
+              total_matches: Array.isArray(matchesData) ? matchesData.length : 0,
+              total_predictions: Array.isArray(predictionsData) ? predictionsData.length : 0,
+              paid_users: 0 // TODO: Update when payment system is implemented
+            });
+          } catch (error) {
+            console.error('Error fetching admin stats:', error);
+          }
         }
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -181,158 +251,750 @@ export const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <div className="flex-1">
+          <Navbar />
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Main Navigation */}
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
+      <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       
-      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-              Welcome back, {user?.username}!
-            </h1>
-            <p className="mt-2 text-gray-600 text-lg">
-              {isOnAdminRoute && isAdmin ? 'Welcome back, admin! Ready to make some predictions?' : 'Here\'s your prediction dashboard'}
-            </p>
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="lg:hidden fixed top-4 left-4 z-30 p-2 rounded-xl bg-white shadow-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+      
+      <div className="flex-1">
+        <Navbar />
+        <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Hero Header with Gradient */}
+          <div className="mb-8">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 p-3 shadow-xl">
+              <div className="relative z-10">
+                <h6 className="text-xl md:text-2xl font-bold text-white mb-1">
+                  Welcome back, {user?.first_name} {user?.last_name}! 👋
+                </h6>
+                <p className="text-blue-100 text-sm">
+                  {isOnAdminRoute && isAdmin ? 'Admin Dashboard - Manage the platform' : 'Ready to make some winning predictions?'}
+                </p>
+              </div>
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+              <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-yellow-400/20 rounded-full blur-2xl"></div>
+            </div>
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="space-y-8">
-          {isOnAdminRoute && isAdmin ? (
-            <AdminContent 
-              activeTab={activeTab} 
-              adminStats={adminStats}
-            />
-          ) : (
-            <UserContent 
-              user={user} 
-              stats={stats}
-            />
-          )}
+          {/* Main Content */}
+          <div className="space-y-8">
+            {isOnAdminRoute && isAdmin ? (
+              <AdminContent 
+                activeTab={activeTab} 
+                adminStats={adminStats}
+              />
+            ) : (
+              <UserContent 
+                user={user} 
+                stats={stats}
+              />
+            )}
 
-          {/* World Cup 2026 Teams - Shown to All Users */}
-          <WorldCupTeamsSection
-            worldCupTeams={worldCupTeams}
-            filteredTeams={filteredTeams}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            selectedConfederation={selectedConfederation}
-            setSelectedConfederation={setSelectedConfederation}
-            confederations={confederations}
-            confederationCounts={confederationCounts}
-            teamsLoading={teamsLoading}
-            teamsError={teamsError}
-            fetchWorldCupTeams={fetchWorldCupTeams}
-          />
+            {/* World Cup 2026 Teams */}
+            <WorldCupTeamsSection
+              worldCupTeams={worldCupTeams}
+              filteredTeams={filteredTeams}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              selectedConfederation={selectedConfederation}
+              setSelectedConfederation={setSelectedConfederation}
+              confederations={confederations}
+              confederationCounts={confederationCounts}
+              teamsLoading={teamsLoading}
+              teamsError={teamsError}
+              fetchWorldCupTeams={fetchWorldCupTeams}
+            />
+          </div>
         </div>
       </div>
     </div>
   );
 };
+
+// World Cup Teams Section Component
+const WorldCupTeamsSection = ({ 
+  filteredTeams, 
+  searchTerm, 
+  setSearchTerm, 
+  selectedConfederation, 
+  setSelectedConfederation, 
+  confederations, 
+  confederationCounts,
+  teamsLoading,
+  teamsError 
+}) => {
+  const confederationColors = {
+    'AFC': 'from-red-400 to-red-600',
+    'CAF': 'from-green-400 to-green-600',
+    'CONCACAF': 'from-blue-400 to-blue-600',
+    'CONMEBOL': 'from-yellow-400 to-yellow-600',
+    'UEFA': 'from-purple-400 to-purple-600',
+    'OFC': 'from-teal-400 to-teal-600',
+    'ALL': 'from-gray-400 to-gray-600'
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+      <div className="bg-gradient-to-r from-green-600 to-blue-600 px-3 py-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <Globe className="h-4 w-4 text-white mr-1.5" />
+            <h2 className="text-base font-bold text-white">World Cup 2026 Teams</h2>
+          </div>
+          <div className="text-white text-xs bg-white/20 px-1.5 py-0.5 rounded-full">
+            {filteredTeams.length}
+          </div>
+        </div>
+      </div>
+
+      <div className="p-3">
+        {/* Search and Filter */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-3">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-2 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+          />
+          <select
+            value={selectedConfederation}
+            onChange={(e) => setSelectedConfederation(e.target.value)}
+            className="px-2 py-1.5 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-transparent"
+          >
+            {confederations.map(conf => (
+              <option key={conf} value={conf}>
+                {conf === 'ALL' ? 'All' : `${conf} (${confederationCounts[conf] || 0})`}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Confederation Tags */}
+        <div className="flex flex-wrap gap-1 mb-3">
+          {confederations.map(conf => (
+            <button
+              key={conf}
+              onClick={() => setSelectedConfederation(conf)}
+              className={`px-2 py-0.5 rounded text-xs font-medium transition-all ${
+                selectedConfederation === conf
+                  ? `bg-gradient-to-r ${confederationColors[conf]} text-white shadow-sm`
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {conf === 'ALL' ? 'All' : conf} {conf !== 'ALL' && `(${confederationCounts[conf] || 0})`}
+            </button>
+          ))}
+        </div>
+
+        {/* Teams Grid */}
+        {teamsLoading ? (
+          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-10 gap-1">
+            {[...Array(10)].map((_, i) => (
+              <div key={i} className="bg-gray-100 rounded p-1.5 animate-pulse">
+                <div className="w-6 h-6 bg-gray-200 rounded-full mx-auto mb-1"></div>
+                <div className="h-2 bg-gray-200 rounded mb-0.5"></div>
+                <div className="h-1.5 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-10 gap-1">
+            {filteredTeams.map((team, index) => (
+              <div
+                key={index}
+                className="bg-gradient-to-br from-gray-50 to-white rounded p-1.5 hover:shadow-sm transition-all duration-300 border border-gray-200 hover:border-blue-300 group"
+              >
+                <div className="relative mb-1">
+                  <img
+                    src={team.badge}
+                    alt={team.name}
+                    className="w-6 h-6 mx-auto object-contain group-hover:scale-110 transition-transform"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/24?text=?';
+                    }}
+                  />
+                  {team.status === 'Host' && (
+                    <div className="absolute -top-0.5 -right-0.5 bg-yellow-400 text-yellow-900 text-xs font-bold px-0.5 py-0.25 rounded">
+                      H
+                    </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className="font-medium text-xs text-gray-900 mb-0.5 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                    {team.name.length > 8 ? team.name.substring(0, 8) + '...' : team.name}
+                  </div>
+                  <div className="text-xs text-gray-500">{team.confederation.length > 3 ? team.confederation.substring(0, 3) : team.confederation}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {filteredTeams.length === 0 && !teamsLoading && (
+          <div className="text-center py-4">
+            <Globe className="h-8 w-8 text-gray-300 mx-auto mb-1" />
+            <p className="text-gray-500 text-xs">No teams found</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Quick Chat Component
+const QuickChat = () => {
+  const { user } = useAuth();
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [chatRooms, setChatRooms] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [showUserList, setShowUserList] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    fetchChatRooms();
+    fetchUsers();
+  }, []);
+
+  const fetchMessages = useCallback(async () => {
+    if (!selectedRoom) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`http://localhost:8000/api/messaging/rooms/${selectedRoom.id}/messages/`, {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setMessages(data.slice(-5));
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  }, [selectedRoom]);
+
+  useEffect(() => {
+    if (selectedRoom) {
+      fetchMessages();
+      const interval = setInterval(fetchMessages, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedRoom, fetchMessages]);
+
+  const fetchChatRooms = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('http://localhost:8000/api/messaging/rooms/', {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setChatRooms(data);
+      }
+    } catch (error) {
+      console.error('Error fetching chat rooms:', error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('http://localhost:8000/api/messaging/users/', {
+        headers: { 'Authorization': `Token ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !selectedRoom) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`http://localhost:8000/api/messaging/rooms/${selectedRoom.id}/send/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ content: newMessage.trim() })
+      });
+      
+      if (response.ok) {
+        setNewMessage('');
+        fetchMessages();
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+
+  const createQuickRoom = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('http://localhost:8000/api/messaging/rooms/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: 'General Chat',
+          description: 'Quick chat room for general discussion',
+          is_group_chat: true
+        })
+      });
+      
+      if (response.ok) {
+        fetchChatRooms();
+      }
+    } catch (error) {
+      console.error('Error creating room:', error);
+    }
+  };
+
+  const formatTime = (timestamp) => {
+    return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-md border border-gray-100">
+        <div className="px-4 py-5 sm:p-6">
+          <div className="flex items-center mb-4">
+            <MessageSquare className="h-5 w-5 text-purple-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-900">Quick Chat</h3>
+          </div>
+          <div className="animate-pulse space-y-3">
+            <div className="h-32 bg-gray-200 rounded"></div>
+            <div className="h-8 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+      <div className="px-4 py-5 sm:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center">
+            <MessageSquare className="h-5 w-5 text-purple-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-900">Quick Chat</h3>
+          </div>
+          <div className="flex space-x-2">
+            {chatRooms.length === 0 && (
+              <button
+                onClick={createQuickRoom}
+                className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Create
+              </button>
+            )}
+            <button
+              onClick={() => setShowUserList(!showUserList)}
+              className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 flex items-center gap-1 transition-colors"
+            >
+              <Users className="w-3 h-3" />
+              {users.length}
+            </button>
+            <Link
+              to="/chat"
+              className="text-xs bg-purple-600 text-white px-3 py-1.5 rounded-md hover:bg-purple-700 flex items-center gap-1 transition-colors"
+            >
+              <MessageSquare className="w-3 h-3" />
+              Full
+            </Link>
+          </div>
+        </div>
+
+        {showUserList && (
+          <div className="mb-4 p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg max-h-32 overflow-y-auto border border-green-200">
+            <div className="text-xs font-semibold text-green-900 mb-2">Online Users</div>
+            <div className="space-y-1">
+              {users.slice(0, 5).map(userItem => (
+                <div key={userItem.id} className="text-xs text-green-700 flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                  {userItem.first_name} {userItem.last_name} -{userItem.username}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {chatRooms.length > 0 && (
+          <div className="mb-4">
+            <select
+              value={selectedRoom?.id || ''}
+              onChange={(e) => setSelectedRoom(chatRooms.find(r => r.id === Number.parseInt(e.target.value)))}
+              className="w-full text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="">Select a room...</option>
+              {chatRooms.map(room => (
+                <option key={room.id} value={room.id}>
+                  {room.name} ({room.participants?.length || 0})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {selectedRoom ? (
+          <>
+            <div className="h-48 overflow-y-auto mb-4 p-3 bg-gradient-to-br from-gray-50 to-slate-50 rounded-lg space-y-2 border border-gray-200">
+              {messages.map(message => (
+                <div
+                  key={message.id}
+                  className={`text-sm ${message.sender.username === user?.username ? 'text-right' : 'text-left'}`}
+                >
+                  <div className={`inline-block px-3 py-2 rounded-lg ${
+                    message.sender.username === user?.username
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
+                      : 'bg-white border border-gray-200 text-gray-900'
+                  }`}>
+                    <div className="text-xs font-medium mb-1">{message.sender.username}</div>
+                    <div>{message.content}</div>
+                    <div className={`text-xs mt-1 ${
+                      message.sender.username === user?.username ? 'text-blue-100' : 'text-gray-500'
+                    }`}>
+                      {formatTime(message.timestamp)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <form onSubmit={sendMessage} className="flex space-x-2">
+              <input
+                type="text"
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type a message..."
+                className="flex-1 text-sm px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              <button
+                type="submit"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:from-purple-700 hover:to-blue-700 transition-all"
+              >
+                Send
+              </button>
+            </form>
+          </>
+        ) : (
+          <div className="text-center py-8">
+            <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+            <p className="text-sm text-gray-500">
+              {chatRooms.length === 0 ? 'Create a room to start chatting' : 'Select a room to join'}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // User Content Component
 const UserContent = ({ user, stats }) => (
   <>
-    {/* Stats Cards */}
+    {/* Stats Cards with Gradient */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard icon={Trophy} label="Total Points" value={user?.total_points || 0} color="yellow" />
-      <StatCard icon={TrendingUp} label="Predictions Made" value={stats.total_predictions} color="green" />
-      <StatCard icon={Star} label="Two-Star Used" value={`${stats.two_star_used}/3`} color="blue" />
-      <StatCard icon={Clock} label="Upcoming Matches" value={stats.upcoming_matches} color="purple" />
+      <GradientStatCard icon={Trophy} label="Total Points" value={`${user?.total_points || 0}`} gradient="from-yellow-400 to-orange-500" />
+      <GradientStatCard icon={Target} label="Predictions Made" value={stats.total_predictions} gradient="from-green-400 to-emerald-600" />
+      <GradientStatCard icon={Star} label="2-Star Used" value={`${stats.two_star_used}/2`} gradient="from-blue-400 to-indigo-600" />
+      <GradientStatCard icon={Clock} label="Upcoming Matches" value={stats.upcoming_matches} gradient="from-purple-400 to-pink-600" />
     </div>
 
     {/* Recent Activity */}
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <RecentPredictions />
       <UpcomingMatches />
+      <QuickChat />
     </div>
   </>
 );
 
-// Stat Card Component
-const StatCard = ({ icon: Icon, label, value, color }) => {
-  const colors = {
-    yellow: 'text-yellow-500',
-    green: 'text-green-500',
-    blue: 'text-blue-500',
-    purple: 'text-purple-500'
-  };
-
+// Gradient Stat Card Component
+const GradientStatCard = ({ icon: Icon, label, value, gradient }) => {
   return (
-    <div className="bg-white overflow-hidden shadow rounded-lg">
-      <div className="p-5">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <Icon className={`h-6 w-6 ${colors[color]}`} />
-          </div>
-          <div className="ml-5 w-0 flex-1">
-            <dt className="text-sm font-medium text-gray-500 truncate">{label}</dt>
-            <dd className="text-lg font-medium text-gray-900">{value}</dd>
-          </div>
+    <div className={`relative overflow-hidden bg-gradient-to-br ${gradient} rounded-2xl p-6 shadow-lg transform hover:scale-105 transition-all duration-300`}>
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <Icon className="h-10 w-10 text-white" />
+          <Zap className="h-6 w-6 text-white/60" />
         </div>
+        <p className="text-sm font-medium text-white/90 mb-1">{label}</p>
+        <p className="text-4xl font-bold text-white">{value}</p>
       </div>
+      <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
     </div>
   );
 };
 
 // Recent Predictions Component
-const RecentPredictions = () => (
-  <div className="bg-white shadow rounded-lg">
-    <div className="px-4 py-5 sm:p-6">
-      <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Predictions</h3>
-      <div className="space-y-3">
-        {[
-          { match: "Brazil vs Argentina", prediction: "2-1", points: "+7 pts", success: true },
-          { match: "France vs Germany", prediction: "1-2", points: "+5 pts", success: true },
-          { match: "Spain vs Italy", prediction: "1-1", points: "0 pts", success: false }
-        ].map((item, idx) => (
-          <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-            <div>
-              <p className="font-medium">{item.match}</p>
-              <p className="text-sm text-gray-500">Your prediction: {item.prediction}</p>
-            </div>
-            <span className={`font-medium ${item.success ? 'text-green-600' : 'text-red-600'}`}>
-              {item.points}
-            </span>
+const RecentPredictions = () => {
+  const [predictions, setPredictions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRecentPredictions = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch('http://localhost:8000/api/predictions/my/', {
+          headers: {
+            'Authorization': `Token ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const predictionsData = await response.json();
+          const recentPredictions = Array.isArray(predictionsData) 
+            ? predictionsData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 3)
+            : [];
+          setPredictions(recentPredictions);
+        }
+      } catch (error) {
+        console.error('Error fetching recent predictions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecentPredictions();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-md border border-gray-100">
+        <div className="px-4 py-5 sm:p-6">
+          <div className="flex items-center mb-4">
+            <TrendingUp className="h-5 w-5 text-green-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-900">Recent Predictions</h3>
           </div>
-        ))}
+          <div className="animate-pulse space-y-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+      <div className="px-4 py-5 sm:p-6">
+        <div className="flex items-center mb-4">
+          <TrendingUp className="h-5 w-5 text-green-600 mr-2" />
+          <h3 className="text-lg font-semibold text-gray-900">Recent Predictions</h3>
+        </div>
+        <div className="space-y-3">
+          {predictions.length === 0 ? (
+            <div className="text-center py-8">
+              <Trophy className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">No predictions yet</p>
+            </div>
+          ) : (
+            predictions.map((prediction) => (
+              <div key={prediction.id} className="flex justify-between items-center p-3 bg-gradient-to-br from-gray-50 to-slate-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900 text-sm">
+                    {prediction.match_details?.team_a_name || 'Team A'} vs {prediction.match_details?.team_b_name || 'Team B'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Prediction: {prediction.predicted_a} - {prediction.predicted_b}
+                    {prediction.used_two_star && <Star className="inline h-3 w-3 ml-1 text-yellow-500" />}
+                  </p>
+                </div>
+                <span className={`font-bold text-sm px-3 py-1 rounded-full ${
+                  prediction.points_awarded > 0 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {prediction.points_awarded !== null && prediction.points_awarded !== undefined 
+                    ? `${prediction.points_awarded > 0 ? '+' : ''}${prediction.points_awarded} pts`
+                    : 'TBD'
+                  }
+                </span>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Upcoming Matches Component
-const UpcomingMatches = () => (
-  <div className="bg-white shadow rounded-lg">
-    <div className="px-4 py-5 sm:p-6">
-      <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Upcoming Matches</h3>
-      <div className="space-y-3">
-        {[
-          { match: "England vs Netherlands", time: "Starts in 2 hours" },
-          { match: "Portugal vs Belgium", time: "Starts tomorrow" }
-        ].map((item, idx) => (
-          <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-            <div>
-              <p className="font-medium">{item.match}</p>
-              <p className="text-sm text-gray-500">{item.time}</p>
-            </div>
-            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-              Predict
-            </button>
+const UpcomingMatches = () => {
+  const [matches, setMatches] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUpcomingMatches = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        
+        const response = await fetch('http://localhost:8000/api/matches/', {
+          headers: token ? {
+            'Authorization': `Token ${token}`
+          } : {}
+        });
+
+        if (response.ok) {
+          const matchesData = await response.json();
+          const now = new Date();
+          const upcomingMatches = Array.isArray(matchesData) ? 
+            matchesData
+              .filter(match => {
+                const matchTime = new Date(match.start_time);
+                return matchTime > now && match.status !== 'FINISHED' && match.status !== 'IN_PROGRESS';
+              })
+              .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
+              .slice(0, 3) : [];
+          setMatches(upcomingMatches);
+        }
+      } catch (error) {
+        console.error('Error fetching upcoming matches:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUpcomingMatches();
+    const interval = setInterval(fetchUpcomingMatches, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatTimeUntilMatch = (startTime) => {
+    const matchTime = new Date(startTime);
+    const currentTime = new Date();
+    const timeDiff = matchTime.getTime() - currentTime.getTime();
+    const hoursUntilMatch = timeDiff / (1000 * 60 * 60);
+    
+    if (hoursUntilMatch < 1) {
+      const minutesUntilMatch = timeDiff / (1000 * 60);
+      return `${Math.round(minutesUntilMatch)}m`;
+    } else if (hoursUntilMatch < 24) {
+      return `${Math.round(hoursUntilMatch)}h`;
+    } else {
+      const daysUntilMatch = hoursUntilMatch / 24;
+      return `${Math.round(daysUntilMatch)}d`;
+    }
+  };
+
+  const handlePredictClick = (match) => {
+    window.location.href = `/matches?match=${match.id}`;
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-md border border-gray-100">
+        <div className="px-4 py-5 sm:p-6">
+          <div className="flex items-center mb-4">
+            <Clock className="h-5 w-5 text-blue-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-900">Upcoming Matches</h3>
           </div>
-        ))}
+          <div className="animate-pulse space-y-3">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-16 bg-gray-200 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow">
+      <div className="px-4 py-5 sm:p-6">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center">
+            <Clock className="h-5 w-5 text-blue-600 mr-2" />
+            <h3 className="text-lg font-semibold text-gray-900">Upcoming Matches</h3>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-xs text-green-600 font-medium">Live</span>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {matches.length === 0 ? (
+            <div className="text-center py-8">
+              <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">No upcoming matches</p>
+            </div>
+          ) : (
+            matches.map((match) => (
+              <div key={match.id} className="flex justify-between items-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:shadow-md transition-shadow">
+                <div className="flex-1">
+                  <p className="font-semibold text-gray-900 text-sm">
+                    {match.team_a_name || 'Team A'} vs {match.team_b_name || 'Team B'}
+                  </p>
+                  <div className="flex items-center mt-1">
+                    <Clock className="h-3 w-3 text-blue-600 mr-1" />
+                    <p className="text-xs text-blue-700 font-medium">
+                      In {formatTimeUntilMatch(match.start_time)}
+                    </p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handlePredictClick(match)}
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105"
+                >
+                  Predict
+                </button>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Admin Content Component
 const AdminContent = ({ activeTab, adminStats }) => {
@@ -341,8 +1003,6 @@ const AdminContent = ({ activeTab, adminStats }) => {
       return <UsersManagement />;
     case 'matches':
       return <MatchesManagement />;
-    case 'import':
-      return <ImportMatches />;
     case 'settings':
       return <SystemSettings />;
     case 'dashboard':
@@ -357,256 +1017,77 @@ const AdminDashboard = ({ stats }) => (
     <AdminStatCard icon={Users} label="Total Users" value={stats.total_users} gradient="from-blue-400 to-blue-600" />
     <AdminStatCard icon={Calendar} label="Total Matches" value={stats.total_matches} gradient="from-green-400 to-green-600" />
     <AdminStatCard icon={FileText} label="Predictions" value={stats.total_predictions} gradient="from-purple-400 to-purple-600" />
-    <AdminStatCard icon={BarChart3} label="Paid Users" value={stats.paid_users} gradient="from-yellow-400 to-orange-500" />
+    <AdminStatCard icon={Award} label="Paid Users" value={stats.paid_users} gradient="from-yellow-400 to-orange-500" />
   </div>
 );
 
 // Admin Stat Card Component
 const AdminStatCard = ({ icon: Icon, label, value, gradient }) => (
-  <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1`}>
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-white/90 text-sm font-medium mb-1">{label}</p>
-        <p className="text-3xl font-bold">{value}</p>
-      </div>
-      <div className="bg-white/20 p-3 rounded-xl">
-        <Icon className="h-8 w-8 text-white" />
+  <div className={`relative overflow-hidden bg-gradient-to-br ${gradient} rounded-2xl p-6 text-white shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105`}>
+    <div className="relative z-10">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-white/90 text-sm font-medium mb-1">{label}</p>
+          <p className="text-4xl font-bold">{value}</p>
+        </div>
+        <div className="bg-white/20 p-3 rounded-xl">
+          <Icon className="h-8 w-8 text-white" />
+        </div>
       </div>
     </div>
+    <div className="absolute bottom-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
   </div>
 );
 
 // Admin Management Components
 const MatchesManagement = () => (
-  <div className="bg-white shadow rounded-lg p-6">
-    <div className="flex justify-between items-center mb-4">
-      <h2 className="text-xl font-semibold text-gray-900">Match Management</h2>
-      <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+  <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-bold text-gray-900">Match Management</h2>
+      <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105">
         Create Match
       </button>
     </div>
-    <div className="text-center py-12">
-      <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-gray-500">Match management interface coming soon</p>
-    </div>
-  </div>
-);
-
-const ImportMatches = () => (
-  <div className="bg-white shadow rounded-lg p-6">
-    <h2 className="text-xl font-semibold text-gray-900 mb-6">Import Matches</h2>
-    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-      <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-      <p className="text-lg font-medium text-gray-900 mb-2">Upload CSV File</p>
-      <p className="text-sm text-gray-500 mb-4">Upload a CSV file with match data</p>
-      <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-        Choose File
-      </button>
+    <div className="text-center py-16">
+      <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-full w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+        <Calendar className="h-12 w-12 text-gray-400" />
+      </div>
+      <p className="text-gray-500 text-lg">Match management interface coming soon</p>
     </div>
   </div>
 );
 
 const SystemSettings = () => (
-  <div className="bg-white shadow rounded-lg p-6">
-    <h2 className="text-xl font-semibold text-gray-900 mb-6">System Settings</h2>
+  <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+    <h2 className="text-2xl font-bold text-gray-900 mb-6">System Settings</h2>
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             Default Limit per User
           </label>
           <input
             type="number"
             defaultValue="3"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             Prediction Lock Time (minutes)
           </label>
           <input
             type="number"
             defaultValue="5"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
       </div>
       <div className="flex justify-end">
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+        <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2.5 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105">
           Save Settings
         </button>
       </div>
     </div>
-  </div>
-);
-
-// World Cup Teams Section Component
-const WorldCupTeamsSection = ({
-  worldCupTeams,
-  filteredTeams,
-  searchTerm,
-  setSearchTerm,
-  selectedConfederation,
-  setSelectedConfederation,
-  confederations,
-  confederationCounts,
-  teamsLoading,
-  teamsError,
-  fetchWorldCupTeams
-}) => (
-  <div className="bg-white shadow rounded-lg">
-    <div className="px-4 py-5 sm:p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold text-gray-900 flex items-center">
-          <Globe className="h-7 w-7 mr-2 text-blue-600" />
-          FIFA World Cup 2026 Teams
-        </h3>
-        <button
-          onClick={fetchWorldCupTeams}
-          disabled={teamsLoading}
-          className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 disabled:opacity-50 transition-colors"
-        >
-          {teamsLoading ? 'Loading...' : 'Refresh Teams'}
-        </button>
-      </div>
-
-      {/* Info Banner */}
-      <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-start">
-          <Globe className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
-          <div>
-            <h4 className="font-semibold text-blue-900">World Cup 2026</h4>
-            <p className="text-sm text-blue-700 mt-1">
-              48 teams competing across USA 🇺🇸, Canada 🇨🇦, and Mexico 🇲🇽
-            </p>
-            <p className="text-xs text-blue-600 mt-1">
-              *Qualifications ongoing. Final list will be confirmed by mid-2025
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {teamsError && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm">
-          {teamsError}
-        </div>
-      )}
-
-      {worldCupTeams.length > 0 && (
-        <>
-          {/* Search and Filter */}
-          <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search teams..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <select
-              value={selectedConfederation}
-              onChange={(e) => setSelectedConfederation(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {confederations.map(conf => (
-                <option key={conf} value={conf}>
-                  {conf === 'ALL' ? 'All Confederations' : `${conf} (${confederationCounts[conf] || 0})`}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Confederation Summary */}
-          <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            <ConfederationCard name="UEFA" count={confederationCounts['UEFA']} region="Europe" color="red" />
-            <ConfederationCard name="CAF" count={confederationCounts['CAF']} region="Africa" color="green" />
-            <ConfederationCard name="CONMEBOL" count={confederationCounts['CONMEBOL']} region="South America" color="yellow" />
-            <ConfederationCard name="CONCACAF" count={confederationCounts['CONCACAF']} region="North America" color="blue" />
-            <ConfederationCard name="AFC" count={confederationCounts['AFC']} region="Asia" color="purple" />
-            <ConfederationCard name="OFC" count={confederationCounts['OFC']} region="Oceania" color="indigo" />
-          </div>
-
-          {/* Teams Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {filteredTeams.map((team, index) => (
-              <TeamCard key={team.name || `team-${index}`} team={team} />
-            ))}
-          </div>
-
-          {filteredTeams.length === 0 && (
-            <div className="text-center py-12">
-              <Globe className="h-12 w-12 mx-auto text-gray-400 mb-3" />
-              <p className="text-gray-500">No teams found matching your search</p>
-            </div>
-          )}
-
-          <div className="mt-6 flex items-center justify-between text-sm text-gray-600 border-t pt-4">
-            <div>
-              Showing <span className="font-semibold text-gray-900">{filteredTeams.length}</span> of{' '}
-              <span className="font-semibold text-gray-900">{worldCupTeams.length}</span> teams
-            </div>
-            <div className="text-xs">
-              Total slots: <span className="font-semibold">48 teams</span>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  </div>
-);
-
-// Confederation Card Component
-const ConfederationCard = ({ name, count, region, color }) => {
-  const colors = {
-    red: 'bg-red-50 border-red-200 text-red-600 text-red-700 text-red-500',
-    green: 'bg-green-50 border-green-200 text-green-600 text-green-700 text-green-500',
-    yellow: 'bg-yellow-50 border-yellow-200 text-yellow-600 text-yellow-700 text-yellow-500',
-    blue: 'bg-blue-50 border-blue-200 text-blue-600 text-blue-700 text-blue-500',
-    purple: 'bg-purple-50 border-purple-200 text-purple-600 text-purple-700 text-purple-500',
-    indigo: 'bg-indigo-50 border-indigo-200 text-indigo-600 text-indigo-700 text-indigo-500'
-  };
-
-  const [bg, border, textPrimary, textSecondary, textTertiary] = colors[color].split(' ');
-
-  return (
-    <div className={`${bg} p-3 rounded-lg border ${border}`}>
-      <div className={`text-xs ${textPrimary} font-semibold`}>{name}</div>
-      <div className={`text-2xl font-bold ${textSecondary}`}>{count || 0}</div>
-      <div className={`text-xs ${textTertiary}`}>{region}</div>
-    </div>
-  );
-};
-
-// Team Card Component
-const TeamCard = ({ team }) => (
-  <div className="relative text-center p-4 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all duration-200">
-    {team.status && (
-      <div className={`absolute top-2 right-2 text-xs px-2 py-1 rounded ${
-        team.status === 'Host' ? 'bg-yellow-100 text-yellow-700' :
-        team.status === 'Qualified' ? 'bg-green-100 text-green-700' :
-        team.status === 'Likely' ? 'bg-blue-100 text-blue-700' :
-        'bg-gray-100 text-gray-700'
-      }`}>
-        {team.status}
-      </div>
-    )}
-    {team.badge && (
-      <img 
-        src={team.badge} 
-        alt={team.name}
-        className="h-12 w-12 mx-auto mb-3 object-contain"
-        onError={(e) => { 
-          e.target.onerror = null;
-          e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><rect width="48" height="48" fill="%23e5e7eb"/><text x="24" y="28" font-size="20" text-anchor="middle" fill="%236b7280">?</text></svg>';
-        }}
-      />
-    )}
-    <p className="font-semibold text-sm text-gray-900 mb-1">{team.name}</p>
-    <p className="text-xs text-gray-500">{team.confederation}</p>
   </div>
 );

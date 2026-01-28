@@ -45,7 +45,9 @@ class Match(models.Model):
     STATUS_CHOICES = [
         ('upcoming', 'Upcoming'),
         ('live', 'Live'),
+        ('extra_time', 'Extra Time'),
         ('finished', 'Finished'),
+        ('completed', 'Completed'),
         ('postponed', 'Postponed'),
         ('cancelled', 'Cancelled'),
     ]
@@ -72,6 +74,10 @@ class Match(models.Model):
     # Scores
     score_a = models.IntegerField(null=True, blank=True)
     score_b = models.IntegerField(null=True, blank=True)
+    
+    # Extra time
+    extra_time = models.IntegerField(default=0, help_text="Extra/stoppage time in minutes")
+    final_whistle_time = models.DateTimeField(null=True, blank=True, help_text="Time when match actually ended")
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -110,6 +116,36 @@ class Match(models.Model):
             "name": self.tournament_name,
             "year": self.tournament_year
         }
+    
+    def save(self, *args, **kwargs):
+        # Check if this is an update and status is being set to completed
+        is_update = self.pk is not None
+        old_status = None
+        
+        if is_update:
+            try:
+                old_match = Match.objects.get(pk=self.pk)
+                old_status = old_match.status
+            except Match.DoesNotExist:
+                pass
+        
+        # Save the match
+        super().save(*args, **kwargs)
+        
+        # If status changed to completed, automatically award points
+        if is_update and old_status != 'completed' and self.status == 'completed':
+                self.award_points_for_all_predictions()
+    
+    def award_points_for_all_predictions(self):
+        """Automatically award points for all predictions on this match"""
+        from predictions.models import Prediction
+        
+        predictions = Prediction.objects.filter(match=self)
+        for prediction in predictions:
+                try:
+                        prediction.award_points()
+                except Exception as e:
+                        print(f"Failed to award points for prediction {prediction.id}: {e}")
     
     @property
     def is_prediction_locked(self):

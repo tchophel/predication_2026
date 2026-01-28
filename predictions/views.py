@@ -167,71 +167,135 @@ def two_star_status(request):
     # Get config
     config = TwoStarConfig.objects.first()
     if not config:
-        config = TwoStarConfig.objects.create()
+        # Create config with 2-star limit
+        config = TwoStarConfig.objects.create(
+            max_per_user_per_tournament=2,
+            max_per_user_global=2
+        )
+    else:
+        # Ensure config uses 2-star limit
+        if config.max_per_user_global != 2:
+            config.max_per_user_per_tournament = 2
+            config.max_per_user_global = 2
+            config.save()
     
-    # Get usage stats
-    from matches.models import Tournament
-    
-    tournaments = Tournament.objects.all()
-    tournament_usage = {}
-    
-    for tournament in tournaments:
-        usage_count = Prediction.get_user_two_star_usage(user, tournament)
-        tournament_usage[tournament.id] = {
-            'tournament_name': str(tournament),
-            'used': usage_count,
-            'remaining': max(0, config.max_per_user_per_tournament - usage_count)
+    # Get usage stats - simplified for current Match model structure
+    try:
+        global_usage = Prediction.get_user_two_star_usage(user)
+        
+        # For now, we'll use a simplified tournament structure
+        # TODO: Update when proper tournament relationships are established
+        tournament_usage = {}
+        
+        data = {
+            'enabled': config.enabled,
+            'max_per_user_per_tournament': 2,  # Always 2
+            'max_per_user_global': 2,         # Always 2
+            'global_used': global_usage,
+            'global_remaining': max(0, 2 - global_usage),  # Calculate based on 2
+            'tournament_usage': tournament_usage,
+            'description': config.description
         }
-    
-    global_usage = Prediction.get_user_two_star_usage(user)
-    
-    data = {
-        'enabled': config.enabled,
-        'max_per_user_per_tournament': config.max_per_user_per_tournament,
-        'max_per_user_global': config.max_per_user_global,
-        'global_used': global_usage,
-        'global_remaining': max(0, config.max_per_user_global - global_usage),
-        'tournament_usage': tournament_usage,
-        'description': config.description
-    }
+    except Exception as e:
+        # If there's any error, return a safe default
+        print(f"Two-star status error: {e}")
+        data = {
+            'enabled': False,
+            'max_per_user_per_tournament': 2,
+            'max_per_user_global': 2,
+            'global_used': 0,
+            'global_remaining': 2,
+            'tournament_usage': {},
+            'description': 'Two-Star feature temporarily unavailable'
+        }
     
     return Response(data)
 
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
-def award_points_for_match(request, match_id):
-    """Award points for all predictions on a finished match (admin only)"""
+def award_points(request):
+    """Award points for a specific prediction (admin only)"""
     if not request.user.is_staff and not request.user.is_superuser:
         return Response(
             {'error': 'Admin access required'}, 
             status=status.HTTP_403_FORBIDDEN
         )
     
-    try:
-        match = Match.objects.get(id=match_id)
-    except Match.DoesNotExist:
-        return Response({'error': 'Match not found'}, status=status.HTTP_404_NOT_FOUND)
+    prediction_id = request.data.get('prediction_id')
+    points = request.data.get('points')
     
-    if match.status != 'finished':
+    if not prediction_id or not points:
         return Response(
-            {'error': 'Match must be finished to award points'}, 
+            {'error': 'prediction_id and points are required'}, 
             status=status.HTTP_400_BAD_REQUEST
         )
     
-    # Award points for all predictions on this match
-    predictions = Prediction.objects.filter(match=match, points_awarded__isnull=True)
-    awarded_count = 0
-    total_points = 0
+    try:
+        prediction = Prediction.objects.get(id=prediction_id)
+    except Prediction.DoesNotExist:
+        return Response({'error': 'Prediction not found'}, status=status.HTTP_404_NOT_FOUND)
     
+    if prediction.points_awarded is not None and prediction.points_awarded > 0:
+        return Response(
+            {'error': 'Points already awarded for this prediction'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Award the points - use the points from frontend
+    # Check if user used 2-star for double points
+    final_points = points
+    if prediction.used_two_star:
+        final_points = points * 2
+    
+    prediction.points_awarded = final_points
+    prediction.save()
+    
+    # Update user's total points by recalculating from all predictions
+    from django.db import transaction
     with transaction.atomic():
-        for prediction in predictions:
-            points = prediction.award_points()
-            awarded_count += 1
-            total_points += points
+        # Recalculate total points from all user's predictions to ensure accuracy
+        from django.db.models import Sum
+        user = prediction.user
+        actual_total = Prediction.objects.filter(
+            user=user,
+            points_awarded__isnull=False
+        ).aggregate(total=Sum('points_awarded'))['total'] or 0
+        user.total_points = actual_total
+        user.save()
     
+    serializer = PredictionSerializer(prediction)
     return Response({
-        'awarded_count': awarded_count,
-        'total_points_awarded': total_points,
-        'message': f'Points awarded for {awarded_count} predictions'
+        'message': f'Points awarded successfully',
+        'prediction': serializer.data
+    })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def award_points_for_match(request, prediction_id):
+
+    if not request.user.is_staff:
+        return Response(
+            {'error': 'Admin access required'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    try:
+        prediction = Prediction.objects.get(id=prediction_id)
+    except Prediction.DoesNotExist:
+        return Response({'error': 'Prediction not found'}, status=404)
+
+    if prediction.match.status not in ["finished", "completed"]:
+        return Response(
+            {"error": "Match must be finished or completed before awarding points"},
+            status=400
+        )
+
+    points = prediction.award_points()
+
+    return Response({
+        "message": "Points awarded successfully",
+        "points": points,
+        "prediction_id": prediction_id
     })

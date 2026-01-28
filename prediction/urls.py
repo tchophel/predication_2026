@@ -4,6 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from django.http import JsonResponse
+from django.shortcuts import render
+import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -12,9 +14,20 @@ urlpatterns = [
     path('api/predictions/', include('predictions.urls')),
     path('api/admin/', include('admin_panel.urls')),
     path('api/leaderboard/', include('leaderboard.urls')),
+    path('api/messaging/', include('messaging.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('', lambda request: JsonResponse({'message': 'Match Prediction API', 'docs': '/api/docs/'})),
+]
+
+# Serve React frontend for all non-API routes
+def react_frontend(request):
+    try:
+        return render(request, 'index.html')
+    except:
+        return JsonResponse({'message': 'Match Prediction API', 'docs': '/api/docs/'})
+
+urlpatterns += [
+    path('', react_frontend),
 ]
 
 if settings.DEBUG:

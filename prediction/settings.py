@@ -28,6 +28,7 @@ LOCAL_APPS = [
     'matches',
     'predictions',
     'admin_panel',
+    'messaging',
     'leaderboard',
 ]
 
@@ -49,7 +50,7 @@ ROOT_URLCONF = 'prediction.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'prediction/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -157,9 +158,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='11104002818@rim.edu.bt')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='zspy iunh ygmy ofub')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
 # Admin Email
 ADMIN_EMAIL = config('ADMIN_EMAIL', default='admin@example.com')
+
+# Admin Payment Details
+ADMIN_ACCOUNT_NUMBER = config('ADMIN_ACCOUNT_NUMBER', default='1234567890')
+ADMIN_ACCOUNT_NAME = config('ADMIN_ACCOUNT_NAME', default='Admin Account')
+ADMIN_BANK_NAME = config('ADMIN_BANK_NAME', default='Bank of Bhutan')

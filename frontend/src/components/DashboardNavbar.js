@@ -1,7 +1,7 @@
 import React from 'react';
-import { Menu } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import PropTypes from 'prop-types';
+import { Grid } from 'lucide-react';
 
 export const DashboardNavbar = ({ toggleSidebar }) => {
   const { user } = useAuth();
@@ -12,11 +12,12 @@ export const DashboardNavbar = ({ toggleSidebar }) => {
         <div className="flex justify-between items-center h-16">
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-xl text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
+            className="p-2 rounded-xl text-gray-600 hover:text-gray-900 transition-all duration-200"
           >
-            <Menu className="h-6 w-6" />
+            <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl hover:bg-gray-100">
+              <Grid className="h-6 w-6" />
+            </span>
           </button>
-          
           <div className="flex items-center space-x-3">
             <div className="text-right">
               <p className="text-sm font-semibold text-gray-900">{user?.username}</p>

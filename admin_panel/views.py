@@ -34,7 +34,10 @@ def list_users(request):
         data.append({
             'id': user.id,
             'username': user.username,
+            'first_name': getattr(user, 'first_name', ''),
+            'last_name': getattr(user, 'last_name', ''),
             'email': user.email,
+            'phone': getattr(user, 'phone', None),
             'is_staff': user.is_staff,
             'is_paid': getattr(user, 'is_paid', False),
             'date_joined': user.date_joined.isoformat(),
@@ -52,6 +55,7 @@ def create_user(request):
     try:
         username = request.data.get('username')
         email = request.data.get('email')
+        phone = request.data.get('phone', '')
         password = request.data.get('password')
         is_paid = request.data.get('is_paid', False)
         is_staff = request.data.get('is_staff', False)
@@ -66,6 +70,9 @@ def create_user(request):
         if User.objects.filter(email=email).exists():
             return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
         
+        if phone and User.objects.filter(phone=phone).exists():
+            return Response({'error': 'Phone number already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
         # Create user
         user = User.objects.create_user(
             username=username,
@@ -74,10 +81,11 @@ def create_user(request):
             is_staff=is_staff
         )
         
-        # Set is_paid status
+        # Set additional fields
+        user.phone = phone
         if hasattr(user, 'is_paid'):
             user.is_paid = is_paid
-            user.save()
+        user.save()
         
         return Response({
             'message': 'User created successfully',
@@ -85,6 +93,7 @@ def create_user(request):
                 'id': user.id,
                 'username': user.username,
                 'email': user.email,
+                'phone': user.phone,
                 'is_staff': user.is_staff,
                 'is_paid': getattr(user, 'is_paid', False)
             }
@@ -104,6 +113,7 @@ def update_user(request, user_id):
         
         username = request.data.get('username')
         email = request.data.get('email')
+        phone = request.data.get('phone')
         password = request.data.get('password')
         is_paid = request.data.get('is_paid')
         is_staff = request.data.get('is_staff')
@@ -119,6 +129,12 @@ def update_user(request, user_id):
             if User.objects.filter(email=email).exclude(id=user_id).exists():
                 return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
             user.email = email
+        
+        # Update phone if provided
+        if phone is not None and phone != user.phone:
+            if phone and User.objects.filter(phone=phone).exclude(id=user_id).exists():
+                return Response({'error': 'Phone number already exists'}, status=status.HTTP_400_BAD_REQUEST)
+            user.phone = phone
         
         # Update password if provided
         if password:
@@ -139,6 +155,7 @@ def update_user(request, user_id):
                 'id': user.id,
                 'username': user.username,
                 'email': user.email,
+                'phone': user.phone,
                 'is_staff': user.is_staff,
                 'is_paid': getattr(user, 'is_paid', False)
             }

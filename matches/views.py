@@ -115,9 +115,29 @@ def match_detail(request, pk):
                 status=status.HTTP_403_FORBIDDEN
             )
         
+        # Get all predictions for this match before deleting
+        from predictions.models import Prediction
+        from users.models import User
+        
+        predictions = Prediction.objects.filter(match=match)
+        affected_users = set()
+        
+        # Store affected users to recalculate their points
+        for prediction in predictions:
+            affected_users.add(prediction.user)
+        
+        # Delete the match (predictions will be deleted due to foreign key constraint)
         match.delete()
+        
+        # Recalculate total points for all affected users
+        for user in affected_users:
+            user_predictions = Prediction.objects.filter(user=user, points_awarded__gt=0)
+            total_points = sum(pred.points_awarded for pred in user_predictions)
+            user.total_points = total_points
+            user.save()
+        
         return Response(
-            {'message': 'Match deleted successfully'}, 
+            {'message': 'Match deleted successfully and user points recalculated'}, 
             status=status.HTTP_204_NO_CONTENT
         )
 
@@ -237,5 +257,60 @@ def update_match_status(request, pk):
         match.score_b = score_b
     
     match.save()
+
+
+def start_extra_time(match):
+    """Start extra time for a match"""
+    if match.status != 'live':
+        return Response({'error': 'Match must be live to start extra time'}, status=status.HTTP_400_BAD_REQUEST)
     
-    return Response(MatchDetailSerializer(match).data)
+    match.status = 'extra_time'
+    match.save()
+    return Response({'message': 'Extra time started', 'status': match.status})
+
+
+def end_extra_time(match):
+    """End extra time and finish the match"""
+    if match.status != 'extra_time':
+        return Response({'error': 'Match must be in extra time to end'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    match.status = 'finished'
+    match.final_whistle_time = timezone.now()
+    match.save()
+    return Response({'message': 'Match ended', 'status': match.status})
+
+
+def add_extra_minutes(match, extra_minutes):
+    """Add extra minutes to a match"""
+    if match.status not in ['live', 'extra_time']:
+        return Response({'error': 'Match must be live or in extra time'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        extra_minutes = int(extra_minutes)
+        if extra_minutes < 0:
+            return Response({'error': 'Extra minutes must be positive'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        match.extra_time = extra_minutes
+        match.save()
+        return Response({'message': f'Added {extra_minutes} minutes extra time', 'extra_time': match.extra_time})
+    except ValueError:
+        return Response({'error': 'Invalid extra minutes value'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def manage_extra_time(request, pk):
+    """Manage extra time for a match"""
+    match = get_object_or_404(Match, pk=pk)
+    action = request.data.get('action')
+    
+    action_handlers = {
+        'start_extra_time': lambda: start_extra_time(match),
+        'end_extra_time': lambda: end_extra_time(match),
+        'add_extra_minutes': lambda: add_extra_minutes(match, request.data.get('extra_minutes', 0)),
+    }
+    
+    if action not in action_handlers:
+        return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    return action_handlers[action]()

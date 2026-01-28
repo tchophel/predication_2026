@@ -2,9 +2,14 @@ import React, { createContext, useState, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 
+// Generate unique device ID
+const generateDeviceId = () => {
+  return 'device_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
+};
+
 // Create axios instance with base URL
 const api = axios.create({
-  baseURL: 'http://localhost:8001',
+  baseURL: 'http://localhost:8000',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -26,7 +31,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await api.post('/api/auth/login/', credentials);
+      // Generate unique device ID
+      const deviceId = localStorage.getItem('deviceId') || generateDeviceId();
+      localStorage.setItem('deviceId', deviceId);
+      
+      const response = await api.post('/api/auth/login/', {
+        ...credentials,
+        device_id: deviceId
+      });
       const { user, token } = response.data;
       
       // Check if user is admin or paid user
@@ -38,7 +50,12 @@ export const AuthProvider = ({ children }) => {
       }
       
       localStorage.setItem('authToken', token);
+      localStorage.setItem('currentDeviceId', deviceId);
       setUser(user);
+      
+      // Set up session monitoring
+      setupSessionMonitoring();
+      
       return { success: true };
     } catch (error) {
       return { 
@@ -50,7 +67,9 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      await api.post('/api/auth/register/', userData);
+      console.log('Sending registration data:', userData);
+      const response = await api.post('/api/auth/register/', userData);
+      console.log('Registration response:', response.data);
       // Don't automatically log in the user after registration
       // They need to pay and get admin approval first
       return { success: true };
@@ -64,6 +83,8 @@ export const AuthProvider = ({ children }) => {
           errorMessage = errorData.username[0];
         } else if (errorData.email) {
           errorMessage = errorData.email[0];
+        } else if (errorData.phone) {
+          errorMessage = errorData.phone[0];
         } else if (errorData.password) {
           errorMessage = errorData.password[0];
         } else if (errorData.non_field_errors) {
@@ -82,45 +103,117 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await api.post('/api/auth/logout/');
+      const deviceId = localStorage.getItem('currentDeviceId');
+      if (deviceId) {
+        await api.post('/api/auth/logout/', { device_id: deviceId });
+      }
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       localStorage.removeItem('authToken');
+      localStorage.removeItem('currentDeviceId');
       setUser(null);
       // Force redirect by clearing loading state
       setLoading(false);
     }
   };
 
+  const setupSessionMonitoring = () => {
+    // Check for session conflicts every 30 seconds
+    const interval = setInterval(async () => {
+      const token = localStorage.getItem('authToken');
+      const deviceId = localStorage.getItem('currentDeviceId');
+      
+      if (token && deviceId) {
+        try {
+          const response = await api.get('/api/auth/check-session/', {
+            headers: { 
+              Authorization: `Token ${token}`,
+              'X-Device-ID': deviceId
+            }
+          });
+          
+          if (!response.data.valid) {
+            // Session invalidated by another device
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentDeviceId');
+            setUser(null);
+            alert('Your account has been logged in from another device. You have been logged out here.');
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('Session check error:', error);
+        }
+      }
+    }, 30000);
+    
+    // Store interval ID for cleanup
+    localStorage.setItem('sessionInterval', interval);
+  };
+
   const checkAuth = async () => {
     const token = localStorage.getItem('authToken');
+    const deviceId = localStorage.getItem('currentDeviceId');
+    
     if (token) {
       try {
         const response = await api.get('/api/auth/profile/', {
-          headers: { Authorization: `Token ${token}` }
+          headers: { 
+            Authorization: `Token ${token}`,
+            'X-Device-ID': deviceId || ''
+          }
         });
         setUser(response.data);
+        
+        // Set up session monitoring if user is authenticated
+        if (deviceId) {
+          setupSessionMonitoring();
+        }
       } catch (error) {
         console.error('Auth check error:', error);
         localStorage.removeItem('authToken');
+        localStorage.removeItem('currentDeviceId');
         setUser(null);
       }
     }
     setLoading(false);
   };
 
+  // Cleanup session monitoring on unmount
+  React.useEffect(() => {
+    return () => {
+      const intervalId = localStorage.getItem('sessionInterval');
+      if (intervalId) {
+        clearInterval(parseInt(intervalId));
+        localStorage.removeItem('sessionInterval');
+      }
+    };
+  }, []);
+
   React.useEffect(() => {
     checkAuth();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const forgotPassword = async (email) => {
+    try {
+      const response = await api.post('/api/auth/forgot-password/', { email });
+      return { success: true, message: response.data.message };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Failed to send reset email' 
+      };
+    }
+  };
 
   const value = useMemo(() => ({
     user,
     login,
     register,
     logout,
+    forgotPassword,
     loading
-  }), [user, loading]);
+  }), [user, loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AuthContext.Provider value={value}>

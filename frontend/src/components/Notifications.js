@@ -19,38 +19,44 @@ export const Notifications = () => {
 
   const fetchNotifications = async () => {
     try {
-      // Mock notifications for now - replace with actual API call
-      const mockNotifications = [
-        {
-          id: 1,
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setNotifications([]);
+        setUnreadCount(0);
+        return;
+      }
+
+      // Fetch new user registrations (notifications for admin)
+      const response = await fetch('http://localhost:8001/api/auth/admin/new-users/', {
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const newUsers = await response.json();
+        
+        // Convert new users to notification format
+        const userNotifications = Array.isArray(newUsers) ? newUsers.map(user => ({
+          id: user.id,
           type: 'info',
           title: 'New User Registration',
-          message: 'John Doe has registered and awaiting payment confirmation',
-          timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
-          read: false
-        },
-        {
-          id: 2,
-          type: 'warning',
-          title: 'Payment Pending',
-          message: '3 users have pending payments',
-          timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          read: false
-        },
-        {
-          id: 3,
-          type: 'success',
-          title: 'Match Completed',
-          message: 'Brazil vs Germany match has been finished',
-          timestamp: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-          read: true
-        }
-      ];
-      
-      setNotifications(mockNotifications);
-      setUnreadCount(mockNotifications.filter(n => !n.read).length);
+          message: `${user.username} has registered and awaiting approval`,
+          timestamp: user.created_at,
+          read: user.notified || false,
+          userId: user.id
+        })) : [];
+        
+        setNotifications(userNotifications);
+        setUnreadCount(userNotifications.filter(n => !n.read).length);
+      } else {
+        setNotifications([]);
+        setUnreadCount(0);
+      }
     } catch (error) {
       console.error('Error fetching notifications:', error);
+      setNotifications([]);
+      setUnreadCount(0);
     }
   };
 

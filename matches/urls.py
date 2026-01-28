@@ -15,6 +15,7 @@ urlpatterns = [
     path('finished/', views.finished_matches, name='finished-matches'),
     path('bulk-create/', views.bulk_create_matches, name='bulk-create-matches'),
     path('<int:pk>/update-status/', views.update_match_status, name='update-match-status'),
+    path('<int:pk>/extra-time/', views.manage_extra_time, name='manage-extra-time'),
     path('worldcup/teams/', views_worldcup.worldcup_teams, name='worldcup-teams'),
     path('worldcup/matches/', views_worldcup.worldcup_matches, name='worldcup-matches'),
 ]

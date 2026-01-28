@@ -10,6 +10,65 @@ from predictions.models import Prediction
 from matches.models import Tournament
 
 
+def calculate_user_stats(user, predictions=None):
+    """Calculate accuracy and other stats for a user"""
+    if predictions is None:
+        predictions = Prediction.objects.filter(user=user)
+    
+    exact_count = predictions.filter(points_awarded__in=[7, 14]).count()
+    two_star_success = predictions.filter(
+        used_two_star=True,
+        points_awarded__in=[14, 10, 4]
+    ).count()
+    
+    # Calculate accuracy: (correct predictions / total predictions) * 100
+    correct_predictions = predictions.filter(points_awarded__gt=0).count()
+    total_predictions = predictions.count()
+    accuracy = (correct_predictions / total_predictions * 100) if total_predictions > 0 else 0
+    
+    return {
+        'exact_predictions': exact_count,
+        'two_star_success': two_star_success,
+        'correct_predictions': correct_predictions,
+        'total_predictions': total_predictions,
+        'accuracy': round(accuracy, 2),
+        'two_star_used': predictions.filter(used_two_star=True).count(),
+    }
+
+
+def build_leaderboard_data(users, tournament_id=None):
+    """Build leaderboard data for a list of users"""
+    leaderboard_data = []
+    
+    for user in users:
+        if tournament_id:
+            predictions = Prediction.objects.filter(user=user, match__tournament_id=tournament_id)
+            points_field = 'tournament_points'
+        else:
+            predictions = Prediction.objects.filter(user=user)
+            points_field = 'total_points'
+        
+        stats = calculate_user_stats(user, predictions)
+        
+        leaderboard_data.append({
+            'rank': user.rank,
+            'user_id': user.id,
+            'username': user.username,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'avatar': None,  # Avatar field removed from User model
+            'total_points': getattr(user, points_field),
+            'matches_predicted': stats['total_predictions'],
+            'correct_predictions': stats['correct_predictions'],
+            'accuracy': stats['accuracy'],
+            'exact_predictions': stats['exact_predictions'],
+            'two_star_used': stats['two_star_used'],
+            'two_star_success': stats['two_star_success'],
+        })
+    
+    return leaderboard_data
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def leaderboard(request):
@@ -36,35 +95,7 @@ def leaderboard(request):
             )
         )
         
-        leaderboard_data = []
-        for user in users:
-            predictions = Prediction.objects.filter(
-                user=user, 
-                match__tournament_id=tournament_id
-            )
-            
-            exact_count = predictions.filter(
-                points_awarded__in=[7, 14]
-            ).count()
-            
-            two_star_success = predictions.filter(
-                used_two_star=True,
-                points_awarded__in=[14, 10, 4]  # 2x points for successful predictions
-            ).count()
-            
-            leaderboard_data.append({
-                'rank': user.rank,
-                'user_id': user.id,
-                'username': user.username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'avatar': user.avatar.url if user.avatar else None,
-                'total_points': user.tournament_points,
-                'matches_predicted': predictions.count(),
-                'exact_predictions': exact_count,
-                'two_star_used': predictions.filter(used_two_star=True).count(),
-                'two_star_success': two_star_success,
-            })
+        leaderboard_data = build_leaderboard_data(users, tournament_id)
     else:
         # Overall leaderboard
         users = users.order_by('-total_points')
@@ -77,32 +108,7 @@ def leaderboard(request):
             )
         )
         
-        leaderboard_data = []
-        for user in users:
-            predictions = Prediction.objects.filter(user=user)
-            
-            exact_count = predictions.filter(
-                points_awarded__in=[7, 14]
-            ).count()
-            
-            two_star_success = predictions.filter(
-                used_two_star=True,
-                points_awarded__in=[14, 10, 4]
-            ).count()
-            
-            leaderboard_data.append({
-                'rank': user.rank,
-                'user_id': user.id,
-                'username': user.username,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
-                'avatar': user.avatar.url if user.avatar else None,
-                'total_points': user.total_points,
-                'matches_predicted': predictions.count(),
-                'exact_predictions': exact_count,
-                'two_star_used': predictions.filter(used_two_star=True).count(),
-                'two_star_success': two_star_success,
-            })
+        leaderboard_data = build_leaderboard_data(users)
     
     return Response(leaderboard_data)
 
@@ -161,7 +167,7 @@ def user_stats(request):
             'username': user.username,
             'first_name': user.first_name,
             'last_name': user.last_name,
-            'avatar': user.avatar.url if user.avatar else None,
+            'avatar': None,  # Avatar field removed from User model
             'total_points': user.total_points,
             'is_paid': user.is_paid,
         },

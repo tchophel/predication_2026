@@ -31,6 +31,7 @@ class MatchSerializer(serializers.ModelSerializer):
             'id', 'team_a_name', 'team_a_code', 'team_b_name', 'team_b_code',
             'start_time', 'status', 'score_a', 'score_b', 'venue',
             'tournament_name', 'tournament_year', 'group',
+            # 'extra_time', 'final_whistle_time',  # Temporarily commented out until migration runs
             'is_locked', 'lock_override_time', 'is_prediction_locked', 
             'time_until_lock', 'can_predict', 'created_at', 'updated_at'
         ]
@@ -46,6 +47,7 @@ class MatchListSerializer(serializers.ModelSerializer):
             'id', 'team_a_name', 'team_a_code', 'team_b_name', 'team_b_code',
             'start_time', 'status', 'score_a', 'score_b', 'venue',
             'tournament_name', 'tournament_year', 'group',
+            # 'extra_time', 'final_whistle_time',  # Temporarily commented out until migration runs
             'is_prediction_locked', 'time_until_lock_minutes'
         ]
     
