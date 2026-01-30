@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.38.0 (HEAD)
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: web
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml
+        kompose.version: 1.38.0 (HEAD)
+      labels:
+        io.kompose.service: web
+    spec:
+      containers:
+        - env:
+            - name: ALLOWED_HOSTS
+              value: localhost,127.0.0.1,0.0.0.0,testserver
+            - name: DB_HOST
+              value: db
+            - name: DB_NAME
+              value: prediction_db
+            - name: DB_PASSWORD
+              value: postgres
+            - name: DB_USER
+              value: postgres
+            - name: DEBUG
+              value: "1"
+            - name: REDIS_URL
+              value: redis://redis:6379/0
+          image: web
+          name: web
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /code
+              name: web-cm0
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            name: web-cm0
+          name: web-cm0

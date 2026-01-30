@@ -9,7 +9,6 @@ export const Predictions = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
@@ -20,7 +19,7 @@ export const Predictions = () => {
           return;
         }
 
-        const timestamp = new Date().getTime();
+        const timestamp = Date.now();
         const response = await fetch(`http://localhost:8000/api/predictions/my/?_t=${timestamp}`, {
           headers: {
             'Authorization': `Token ${token}`,
@@ -45,7 +44,7 @@ export const Predictions = () => {
     };
 
     fetchPredictions();
-  }, [refreshKey]);
+  }, [refreshKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   
   const getPredictionStatus = (prediction) => {
@@ -78,10 +77,14 @@ export const Predictions = () => {
   const pendingPredictions = predictions.filter(p => getPredictionStatus(p) === 'pending').length;
   const totalPredictions = predictions.length;
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
-        <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
         <div className="flex-1">
           <Navbar />
           <div className="flex justify-center items-center h-64">
@@ -94,11 +97,11 @@ export const Predictions = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex">
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+      <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
       
       {/* Mobile Menu Button */}
       <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
+        onClick={toggleSidebar}
         className="lg:hidden fixed top-4 left-4 z-30 p-2 rounded-xl bg-white shadow-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all duration-200"
       >
         <Menu className="h-5 w-5" />
