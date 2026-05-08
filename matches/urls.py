@@ -18,4 +18,5 @@ urlpatterns = [
     path('<int:pk>/extra-time/', views.manage_extra_time, name='manage-extra-time'),
     path('worldcup/teams/', views_worldcup.worldcup_teams, name='worldcup-teams'),
     path('worldcup/matches/', views_worldcup.worldcup_matches, name='worldcup-matches'),
+    path('worldcup/import-teams/', views_worldcup.import_teams_to_db, name='worldcup-import-teams'),
 ]

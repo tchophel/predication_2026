@@ -51,6 +51,7 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem('authToken', token);
       localStorage.setItem('currentDeviceId', deviceId);
+      localStorage.setItem('userData', JSON.stringify(user));
       setUser(user);
       
       // Set up session monitoring
@@ -112,8 +113,8 @@ export const AuthProvider = ({ children }) => {
     } finally {
       localStorage.removeItem('authToken');
       localStorage.removeItem('currentDeviceId');
+      localStorage.removeItem('userData');
       setUser(null);
-      // Force redirect by clearing loading state
       setLoading(false);
     }
   };
@@ -154,27 +155,39 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     const token = localStorage.getItem('authToken');
     const deviceId = localStorage.getItem('currentDeviceId');
-    
-    if (token) {
-      try {
-        const response = await api.get('/api/auth/profile/', {
-          headers: { 
-            Authorization: `Token ${token}`,
-            'X-Device-ID': deviceId || ''
-          }
-        });
-        setUser(response.data);
-        
-        // Set up session monitoring if user is authenticated
-        if (deviceId) {
-          setupSessionMonitoring();
+
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+
+    // Restore cached user immediately so the page doesn't flash to login
+    const cached = localStorage.getItem('userData');
+    if (cached) {
+      try { setUser(JSON.parse(cached)); } catch (_) { /* ignore parse error */ }
+    }
+
+    try {
+      const response = await api.get('/api/auth/profile/', {
+        headers: {
+          Authorization: `Token ${token}`,
+          'X-Device-ID': deviceId || ''
         }
-      } catch (error) {
-        console.error('Auth check error:', error);
+      });
+      const freshUser = response.data;
+      localStorage.setItem('userData', JSON.stringify(freshUser));
+      setUser(freshUser);
+      if (deviceId) setupSessionMonitoring();
+    } catch (error) {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) {
+        // Token is invalid or expired — force logout
         localStorage.removeItem('authToken');
         localStorage.removeItem('currentDeviceId');
+        localStorage.removeItem('userData');
         setUser(null);
       }
+      // For network errors / 5xx — keep the cached user, don't log out
     }
     setLoading(false);
   };

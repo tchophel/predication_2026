@@ -1,7 +1,15 @@
 from pathlib import Path
-from decouple import config
+import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables
+if not os.getenv('DOCKER_ENV'):
+    # Local development - use .env.local
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env.local')
+
+from decouple import config
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
@@ -72,7 +80,10 @@ DATABASES = {
         'USER': config('DB_USER', default='postgres'),
         'PASSWORD': config('DB_PASSWORD', default=''),
         'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+        'PORT': config('DB_PORT', default='5432', cast=int),
+        'OPTIONS': {
+            'options': '-c default_transaction_isolation=serializable'
+        }
     }
 }
 
@@ -125,9 +136,23 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Match Prediction API',
-    'DESCRIPTION': 'API for the Match Prediction System',
+    'DESCRIPTION': 'API for the World Cup 2026 Match Prediction System',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'SECURITY': [{'tokenAuth': []}],
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'SWAGGER_UI_SETTINGS': {
+        'persistAuthorization': True,
+    },
+    'SECURITY_DEFINITIONS': {
+        'tokenAuth': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': 'Token-based authentication. Enter: **Token &lt;your token&gt;**',
+        }
+    },
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -140,6 +165,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+from corsheaders.defaults import default_headers
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'x-device-id',
+]
 
 # Celery Configuration
 CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
@@ -164,6 +194,13 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
 
 # Admin Email
 ADMIN_EMAIL = config('ADMIN_EMAIL', default='admin@example.com')
+
+# WC2026 API
+WC2026_API_KEY = config('WC2026_API_KEY', default='')
+WC2026_API_URL = config('WC2026_API_URL', default='https://api.wc2026api.com')
+
+# Anthropic API for AI Chatbot
+ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
 
 # Admin Payment Details
 ADMIN_ACCOUNT_NUMBER = config('ADMIN_ACCOUNT_NUMBER', default='1234567890')

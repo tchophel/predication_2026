@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { Home, Calendar, Users, Trophy, Settings, Star, X, Shield } from 'lucide-react';
+import { Home, Calendar, Users, Trophy, Settings, Star, X, Shield, Flag } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Sidebar = ({ isOpen, toggleSidebar }) => {
@@ -21,11 +21,17 @@ export const Sidebar = ({ isOpen, toggleSidebar }) => {
       label: 'Matches',
       description: 'View all matches'
     },
-    { 
-      path: '/leaderboard', 
-      icon: Users, 
+    {
+      path: '/leaderboard',
+      icon: Users,
       label: 'Leaderboard',
       description: 'Top players'
+    },
+    {
+      path: '/teams',
+      icon: Flag,
+      label: 'Teams',
+      description: 'WC2026 teams'
     },
   ];
 

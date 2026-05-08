@@ -1,9 +1,6 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f docker-compose.yml
-    kompose.version: 1.38.0 (HEAD)
   labels:
     io.kompose.service: frontend
   name: frontend
@@ -16,34 +13,30 @@ spec:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose convert -f docker-compose.yml
-        kompose.version: 1.38.0 (HEAD)
       labels:
         io.kompose.service: frontend
     spec:
       containers:
-        - args:
-            - npm
-            - start
+        - name: frontend
+          image: predication_2026-frontend:latest
+          imagePullPolicy: IfNotPresent
+          args: ["npm", "start"]
           env:
             - name: REACT_APP_API_URL
               value: http://localhost:8000
-          image: frontend
-          name: frontend
+            - name: REACT_APP_BACKEND_URL
+              value: http://localhost:8000
+            - name: REACT_APP_FOOTBALL_API_URL
+              value: https://media.api-sports.io/
+            - name: REACT_APP_FOOTBALL_API_KEY
+              value: c27d5af3460e0b3e90fdd80dcef3fa02
+            - name: REACT_APP_DEBUG
+              value: "true"
+            - name: REACT_APP_ENVIRONMENT
+              value: development
+            - name: WDS_SOCKET_PORT
+              value: "0"
           ports:
             - containerPort: 3000
               protocol: TCP
-          volumeMounts:
-            - mountPath: /app
-              name: frontend-cm0
-            - mountPath: /app/node_modules
-              name: frontend-claim1
       restartPolicy: Always
-      volumes:
-        - configMap:
-            name: frontend-cm0
-          name: frontend-cm0
-        - name: frontend-claim1
-          persistentVolumeClaim:
-            claimName: frontend-claim1

@@ -3,7 +3,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db import transaction
 from .models import ChatRoom, Message, PrivateChat, PrivateMessage
 from .serializers import (
     ChatRoomSerializer, MessageSerializer, 
@@ -321,3 +320,4 @@ def get_users(request):
     """Get list of users for starting private chats"""
     users = User.objects.exclude(id=request.user.id).values('id', 'username', 'first_name', 'last_name')
     return Response(list(users))
+

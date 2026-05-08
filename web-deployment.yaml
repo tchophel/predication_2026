@@ -24,12 +24,16 @@ spec:
     spec:
       containers:
         - env:
+            - name: DOCKER_ENV
+              value: "1"
             - name: ALLOWED_HOSTS
               value: localhost,127.0.0.1,0.0.0.0,testserver
             - name: DB_HOST
               value: db
             - name: DB_NAME
               value: prediction_db
+            - name: DB_PORT
+              value: "5432"
             - name: DB_PASSWORD
               value: postgres
             - name: DB_USER
@@ -38,16 +42,14 @@ spec:
               value: "1"
             - name: REDIS_URL
               value: redis://redis:6379/0
-          image: web
+            - name: WC2026_API_KEY
+              value: wc26_7vVxTuYKTahxxVvu3w6vE5
+            - name: WC2026_API_URL
+              value: https://api.wc2026api.com
+          image: 11104002818/tchophel:v15
+          imagePullPolicy: IfNotPresent
           name: web
           ports:
             - containerPort: 8000
               protocol: TCP
-          volumeMounts:
-            - mountPath: /code
-              name: web-cm0
       restartPolicy: Always
-      volumes:
-        - configMap:
-            name: web-cm0
-          name: web-cm0

@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute, PublicRoute } from './components/ProtectedRoute';
@@ -16,6 +15,7 @@ import { MatchManagement } from './pages/MatchManagement';
 import { PredictionList } from './pages/PredictionList';
 import { Settings } from './pages/Settings';
 import { Chat } from './pages/Chat';
+import { Teams } from './pages/Teams';
 
 function App() {
   return (
@@ -95,6 +95,12 @@ function App() {
             <Route path="/chat" element={
               <ProtectedRoute>
                 <Chat />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/teams" element={
+              <ProtectedRoute>
+                <Teams />
               </ProtectedRoute>
             } />
             

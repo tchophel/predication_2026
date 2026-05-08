@@ -23,4 +23,5 @@ urlpatterns = [
     
     # Users
     path('users/', views.get_users, name='get-users'),
+
 ]

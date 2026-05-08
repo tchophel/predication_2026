@@ -1,15 +1,22 @@
 #!/bin/bash
 
+cd /code
+export PYTHONPATH=/code
+
+# Use DB_HOST env var (set to 'db' in Docker Compose, or full K8s name in Kubernetes)
+POSTGRES_HOST="${DB_HOST:-db}"
+REDIS_HOST="${REDIS_HOST:-redis}"
+
 # Wait for PostgreSQL to be ready
-echo "Waiting for PostgreSQL..."
-while ! nc -z db 5432; do
+echo "Waiting for PostgreSQL at ${POSTGRES_HOST}:5432..."
+while ! nc -z "$POSTGRES_HOST" 5432; do
   sleep 0.1
 done
 echo "PostgreSQL is ready!"
 
 # Wait for Redis to be ready
-echo "Waiting for Redis..."
-while ! nc -z redis 6379; do
+echo "Waiting for Redis at ${REDIS_HOST}:6379..."
+while ! nc -z "$REDIS_HOST" 6379; do
   sleep 0.1
 done
 echo "Redis is ready!"
@@ -18,19 +25,7 @@ echo "Redis is ready!"
 echo "Running database migrations..."
 python manage.py migrate
 
-# Create superuser if it doesn't exist
-echo "Creating superuser if needed..."
-python manage.py shell << EOF
-from django.contrib.auth import get_user_model
-User = get_user_model()
-if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-    print('Superuser created: admin/admin123')
-else:
-    print('Superuser already exists')
-EOF
-
-# Load master data
+# Load master data (creates admin user with correct permissions)
 echo "Loading master data..."
 python manage.py load_master_data
 
