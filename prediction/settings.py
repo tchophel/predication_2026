@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import sys
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -73,19 +74,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'prediction.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='prediction_db'),
-        'USER': config('DB_USER', default='postgres'),
-        'PASSWORD': config('DB_PASSWORD', default=''),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432', cast=int),
-        'OPTIONS': {
-            'options': '-c default_transaction_isolation=serializable'
+# During Vercel's build-time `collectstatic`, the postgres adapter import
+# fails (Vercel installs bare psycopg without a libpq backend). collectstatic
+# never touches the DB, so swap in sqlite for that one command.
+if 'collectstatic' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'build_collectstatic.sqlite3',
         }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='prediction_db'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432', cast=int),
+            'OPTIONS': {
+                'options': '-c default_transaction_isolation=serializable'
+            }
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
