@@ -1,0 +1,10 @@
+{
+  "build": {
+    "env": {
+      "DISABLE_COLLECTSTATIC": "1"
+    }
+  },
+  "env": {
+    "DISABLE_COLLECTSTATIC": "1"
+  }
+}
