@@ -20,7 +20,7 @@ export const Predictions = () => {
         }
 
         const timestamp = Date.now();
-        const response = await fetch(`http://localhost:8000/api/predictions/my/?_t=${timestamp}`, {
+        const response = await fetch(`/api/predictions/my/?_t=${timestamp}`, {
           headers: {
             'Authorization': `Token ${token}`,
             'Cache-Control': 'no-cache, no-store, must-revalidate',

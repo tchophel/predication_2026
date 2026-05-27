@@ -378,7 +378,7 @@ const RecentPredictions = () => {
       try {
         const token = localStorage.getItem('authToken');
         if (!token) { setLoading(false); return; }
-        const response = await fetch('http://localhost:8000/api/predictions/my/', {
+        const response = await fetch('/api/predictions/my/', {
           headers: { 'Authorization': `Token ${token}` },
         });
         if (response.ok) {
@@ -529,7 +529,7 @@ export const Matches = () => {
 
   // ── Data loading ────────────────────────────────────────────────────────────
   const authFetch = (path, token) =>
-    fetch(`http://localhost:8000${path}`, { headers: { Authorization: `Token ${token}` } });
+    fetch(`${path}`, { headers: { Authorization: `Token ${token}` } });
 
   const loadPredictions = async (token) => {
     const pr = await authFetch('/api/predictions/my/', token);
@@ -654,8 +654,8 @@ export const Matches = () => {
       const existing = Array.isArray(userPredictions) ? userPredictions.find(p => p.match === selectedMatch.id) : null;
       const payload  = { predicted_a: Number.parseInt(predictionData.predicted_score_a), predicted_b: Number.parseInt(predictionData.predicted_score_b), used_two_star: predictionData.used_two_star };
       const url      = existing
-        ? `http://localhost:8000/api/predictions/${existing.id}/update/`
-        : `http://localhost:8000/api/predictions/matches/${selectedMatch.id}/`;
+        ? `/api/predictions/${existing.id}/update/`
+        : `/api/predictions/matches/${selectedMatch.id}/`;
       const method   = existing ? 'PUT' : 'POST';
       const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Token ${token}` }, body: JSON.stringify(payload) });
       if (!response.ok) return;

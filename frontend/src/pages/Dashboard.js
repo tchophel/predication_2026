@@ -145,7 +145,7 @@ export const Dashboard = () => {
         // Fetch user stats from database
         if (token) {
           try {
-            const predictionsResponse = await fetch('http://localhost:8000/api/predictions/my/', {
+            const predictionsResponse = await fetch('/api/predictions/my/', {
               headers: {
                 'Authorization': `Token ${token}`
               }
@@ -172,7 +172,7 @@ export const Dashboard = () => {
           
           // Fetch upcoming matches count
           try {
-            const matchesResponse = await fetch('http://localhost:8000/api/matches/', {
+            const matchesResponse = await fetch('/api/matches/', {
               headers: {
                 'Authorization': `Token ${token}`
               }
@@ -198,13 +198,13 @@ export const Dashboard = () => {
         if (isAdmin && token) {
           try {
             const [usersResponse, matchesResponse, predictionsResponse] = await Promise.all([
-              fetch('http://localhost:8000/api/auth/users/', {
+              fetch('/api/auth/users/', {
                 headers: { 'Authorization': `Token ${token}` }
               }),
-              fetch('http://localhost:8000/api/matches/', {
+              fetch('/api/matches/', {
                 headers: { 'Authorization': `Token ${token}` }
               }),
-              fetch('http://localhost:8000/api/predictions/all/', {
+              fetch('/api/predictions/all/', {
                 headers: { 'Authorization': `Token ${token}` }
               })
             ]);
@@ -492,7 +492,7 @@ const QuickChat = () => {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8000/api/messaging/rooms/${selectedRoom.id}/messages/`, {
+      const response = await fetch(`/api/messaging/rooms/${selectedRoom.id}/messages/`, {
         headers: { 'Authorization': `Token ${token}` }
       });
       
@@ -516,7 +516,7 @@ const QuickChat = () => {
   const fetchChatRooms = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:8000/api/messaging/rooms/', {
+      const response = await fetch('/api/messaging/rooms/', {
         headers: { 'Authorization': `Token ${token}` }
       });
       if (response.ok) {
@@ -531,7 +531,7 @@ const QuickChat = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:8000/api/messaging/users/', {
+      const response = await fetch('/api/messaging/users/', {
         headers: { 'Authorization': `Token ${token}` }
       });
       if (response.ok) {
@@ -551,7 +551,7 @@ const QuickChat = () => {
 
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch(`http://localhost:8000/api/messaging/rooms/${selectedRoom.id}/send/`, {
+      const response = await fetch(`/api/messaging/rooms/${selectedRoom.id}/send/`, {
         method: 'POST',
         headers: {
           'Authorization': `Token ${token}`,
@@ -572,7 +572,7 @@ const QuickChat = () => {
   const createQuickRoom = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await fetch('http://localhost:8000/api/messaging/rooms/', {
+      const response = await fetch('/api/messaging/rooms/', {
         method: 'POST',
         headers: {
           'Authorization': `Token ${token}`,
@@ -785,7 +785,7 @@ const RecentPredictions = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:8000/api/predictions/my/', {
+        const response = await fetch('/api/predictions/my/', {
           headers: {
             'Authorization': `Token ${token}`
           }
@@ -878,7 +878,7 @@ const UpcomingMatches = () => {
       try {
         const token = localStorage.getItem('authToken');
         
-        const response = await fetch('http://localhost:8000/api/matches/', {
+        const response = await fetch('/api/matches/', {
           headers: token ? {
             'Authorization': `Token ${token}`
           } : {}

@@ -37,7 +37,7 @@ export const Home = () => {
     
     try {
       if (lowerQuery.includes('match') || lowerQuery.includes('upcoming') || lowerQuery.includes('game')) {
-        const response = await fetch('http://localhost:8000/api/matches/upcoming/', {
+        const response = await fetch('/api/matches/upcoming/', {
           headers: token ? { 'Authorization': `Token ${token}` } : {}
         });
         
@@ -52,7 +52,7 @@ export const Home = () => {
       }
       
       if (lowerQuery.includes('live') || lowerQuery.includes('playing') || lowerQuery.includes('now')) {
-        const response = await fetch('http://localhost:8000/api/matches/live/', {
+        const response = await fetch('/api/matches/live/', {
           headers: token ? { 'Authorization': `Token ${token}` } : {}
         });
         
@@ -68,7 +68,7 @@ export const Home = () => {
       
       if (lowerQuery.includes('prediction') || lowerQuery.includes('my') || lowerQuery.includes('stats')) {
         if (token) {
-          const response = await fetch('http://localhost:8000/api/predictions/my/', {
+          const response = await fetch('/api/predictions/my/', {
             headers: { 'Authorization': `Token ${token}` }
           });
           
@@ -88,7 +88,7 @@ export const Home = () => {
       }
       
       if (lowerQuery.includes('leaderboard') || lowerQuery.includes('top') || lowerQuery.includes('ranking')) {
-        const response = await fetch('http://localhost:8000/api/leaderboard/', {
+        const response = await fetch('/api/leaderboard/', {
           headers: token ? { 'Authorization': `Token ${token}` } : {}
         });
         

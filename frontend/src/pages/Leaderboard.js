@@ -13,7 +13,7 @@ export const Leaderboard = () => {
       try {
         const token = localStorage.getItem('authToken');
         
-        const response = await fetch('http://localhost:8000/api/leaderboard/', {
+        const response = await fetch('/api/leaderboard/', {
           headers: token ? {
             'Authorization': `Token ${token}`
           } : {}

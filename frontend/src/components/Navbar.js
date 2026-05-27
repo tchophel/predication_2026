@@ -69,7 +69,7 @@ export const Navbar = () => {
       }
 
       // Mark all unpaid users as paid
-      const response = await fetch('http://localhost:8000/api/auth/admin/mark-all-paid/', {
+      const response = await fetch('/api/auth/admin/mark-all-paid/', {
         method: 'POST',
         headers: {
           'Authorization': `Token ${token}`,
@@ -101,7 +101,7 @@ export const Navbar = () => {
       console.log('Fetching notifications with token:', token ? 'exists' : 'missing');
 
       // Fetch new user registrations (notifications for admin)
-      const response = await fetch('http://localhost:8000/api/auth/admin/new-users/', {
+      const response = await fetch('/api/auth/admin/new-users/', {
         headers: {
           'Authorization': `Token ${token}`
         }
@@ -163,10 +163,10 @@ export const Navbar = () => {
 
       // Fetch both room and private chat unread counts
       const [roomsResponse, privateResponse] = await Promise.all([
-        fetch('http://localhost:8000/api/messaging/rooms/', {
+        fetch('/api/messaging/rooms/', {
           headers: { 'Authorization': `Token ${token}` }
         }),
-        fetch('http://localhost:8000/api/messaging/private/', {
+        fetch('/api/messaging/private/', {
           headers: { 'Authorization': `Token ${token}` }
         })
       ]);

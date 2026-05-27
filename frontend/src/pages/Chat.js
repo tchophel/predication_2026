@@ -6,7 +6,7 @@ import { Sidebar } from '../components/Sidebar';
 
 // Database connection helper
 const databaseAPI = {
-  baseURL: 'http://localhost:8000/api/messaging',
+  baseURL: '/api/messaging',
   
   async request(endpoint, options = {}) {
     const token = localStorage.getItem('authToken');
@@ -281,7 +281,7 @@ export const Chat = () => {
       console.log('Selected chat:', selectedChat);
       console.log('Message content:', newMessage.trim());
       console.log('Endpoint:', endpoint);
-      console.log('Full URL:', `http://localhost:8000/api/messaging${endpoint}`);
+      console.log('Full URL:', `/api/messaging${endpoint}`);
       
       const response = await databaseAPI.post(endpoint, { content: newMessage.trim() });
       console.log('Message sent successfully:', response);

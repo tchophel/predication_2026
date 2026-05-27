@@ -17,7 +17,7 @@ const RecentPredictions = () => {
           return;
         }
 
-        const response = await fetch('http://localhost:8000/api/predictions/my/', {
+        const response = await fetch('/api/predictions/my/', {
           headers: {
             'Authorization': `Token ${token}`
           }
@@ -197,7 +197,7 @@ export const Matches = () => {
         const token = localStorage.getItem('authToken');
         
         if (token) {
-          const response = await fetch('http://localhost:8000/api/matches/', {
+          const response = await fetch('/api/matches/', {
             headers: { 'Authorization': `Token ${token}` }
           });
           
@@ -209,7 +209,7 @@ export const Matches = () => {
         }
         
         if (token) {
-          const twoStarResponse = await fetch('http://localhost:8000/api/predictions/two-star-status/', {
+          const twoStarResponse = await fetch('/api/predictions/two-star-status/', {
             headers: { 'Authorization': `Token ${token}` }
           });
           
@@ -219,7 +219,7 @@ export const Matches = () => {
         }
         
         if (token) {
-          const predictionsResponse = await fetch('http://localhost:8000/api/predictions/my/', {
+          const predictionsResponse = await fetch('/api/predictions/my/', {
             headers: { 'Authorization': `Token ${token}` }
           });
           
@@ -337,7 +337,7 @@ export const Matches = () => {
 
       let response;
       if (existingPrediction) {
-        response = await fetch(`http://localhost:8000/api/predictions/${existingPrediction.id}/update/`, {
+        response = await fetch(`/api/predictions/${existingPrediction.id}/update/`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ export const Matches = () => {
           body: JSON.stringify(requestPredictionData)
         });
       } else {
-        response = await fetch(`http://localhost:8000/api/predictions/matches/${selectedMatch.id}/`, {
+        response = await fetch(`/api/predictions/matches/${selectedMatch.id}/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -357,7 +357,7 @@ export const Matches = () => {
       }
 
       if (response.ok) {
-        const predictionsResponse = await fetch('http://localhost:8000/api/predictions/my/', {
+        const predictionsResponse = await fetch('/api/predictions/my/', {
           headers: { 'Authorization': `Token ${token}` }
         });
         
@@ -379,7 +379,7 @@ export const Matches = () => {
           setPredictions(predsObj);
         }
         
-        const twoStarResponse = await fetch('http://localhost:8000/api/predictions/two-star-status/', {
+        const twoStarResponse = await fetch('/api/predictions/two-star-status/', {
           headers: { 'Authorization': `Token ${token}` }
         });
         

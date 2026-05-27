@@ -6,7 +6,7 @@ import { Sidebar } from '../components/Sidebar';
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: '',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -76,7 +76,7 @@ export const PredictionList = () => {
                 base_points = 0;
               }
               
-              const response = await fetch(`http://localhost:8000/api/predictions/matches/${prediction.id}/award-points/`, {
+              const response = await fetch(`/api/predictions/matches/${prediction.id}/award-points/`, {
                 method: 'POST',
                 headers: {
                   'Authorization': `Token ${token}`,
@@ -114,7 +114,7 @@ export const PredictionList = () => {
         return;
       }
 
-      const predictionsResponse = await fetch('http://localhost:8000/api/predictions/', {
+      const predictionsResponse = await fetch('/api/predictions/', {
         headers: {
           'Authorization': `Token ${token}`,
           'Content-Type': 'application/json'

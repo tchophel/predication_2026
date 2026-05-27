@@ -4,7 +4,7 @@ import { Flag, Menu, Search, Users, Calendar } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { Sidebar } from '../components/Sidebar';
 
-const API = 'http://localhost:8000';
+const API = '';
 
 async function apiFetch(path) {
   const token = localStorage.getItem('authToken');

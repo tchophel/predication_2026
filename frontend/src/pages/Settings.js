@@ -52,7 +52,7 @@ export const Settings = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/auth/profile/', {
+      const response = await fetch('/api/auth/profile/', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export const Settings = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/api/auth/change-password/', {
+      const response = await fetch('/api/auth/change-password/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

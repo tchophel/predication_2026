@@ -5,7 +5,7 @@ import { Navbar } from '../components/Navbar';
 import { Sidebar } from '../components/Sidebar';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: '',
   headers: { 'Content-Type': 'application/json' },
 });
 
