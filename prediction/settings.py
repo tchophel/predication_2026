@@ -93,19 +93,35 @@ if 'collectstatic' in sys.argv:
         }
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='prediction_db'),
-            'USER': config('DB_USER', default='postgres'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432', cast=int),
-            'OPTIONS': {
-                'options': '-c default_transaction_isolation=serializable'
+    database_url = config('DATABASE_URL', default='')
+    if database_url:
+        from urllib.parse import urlparse
+        url = urlparse(database_url)
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': url.path[1:],
+                'USER': url.username,
+                'PASSWORD': url.password,
+                'HOST': url.hostname,
+                'PORT': url.port or 5432,
+                'OPTIONS': {'sslmode': 'require'},
             }
         }
-    }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': config('DB_NAME', default='prediction_db'),
+                'USER': config('DB_USER', default='postgres'),
+                'PASSWORD': config('DB_PASSWORD', default=''),
+                'HOST': config('DB_HOST', default='localhost'),
+                'PORT': config('DB_PORT', default='5432', cast=int),
+                'OPTIONS': {
+                    'options': '-c default_transaction_isolation=serializable'
+                }
+            }
+        }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
