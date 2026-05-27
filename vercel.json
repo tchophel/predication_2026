@@ -1,9 +1,10 @@
 {
-  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && python manage.py collectstatic --noinput",
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
   "build": {
     "env": {
       "CI": "false",
-      "DISABLE_ESLINT_PLUGIN": "true"
+      "DISABLE_ESLINT_PLUGIN": "true",
+      "DISABLE_COLLECTSTATIC": "1"
     }
   }
 }
