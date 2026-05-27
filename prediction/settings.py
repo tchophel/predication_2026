@@ -18,12 +18,10 @@ from decouple import config
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,testserver', cast=lambda v: [s.strip() for s in v.split(',')])
-
-if os.getenv('VERCEL'):
-    ALLOWED_HOSTS += ['.vercel.app', '.now.sh']
-    vercel_url = os.getenv('VERCEL_URL')
-    if vercel_url:
-        ALLOWED_HOSTS.append(vercel_url)
+ALLOWED_HOSTS += ['.vercel.app', '.now.sh']
+vercel_url = os.getenv('VERCEL_URL')
+if vercel_url:
+    ALLOWED_HOSTS.append(vercel_url)
 
 DJANGO_APPS = [
     'django.contrib.admin',
