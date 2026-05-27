@@ -20,37 +20,49 @@ class TeamSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'country_code', 'flag']
 
 
-class MatchSerializer(serializers.ModelSerializer):
+class MatchTimeFieldsMixin(serializers.Serializer):
+    """Adds separate human-readable date and time fields derived from start_time."""
+    date = serializers.SerializerMethodField()
+    time = serializers.SerializerMethodField()
+
+    def get_date(self, obj):
+        return obj.start_time.date().isoformat() if obj.start_time else None
+
+    def get_time(self, obj):
+        return obj.start_time.strftime('%H:%M') if obj.start_time else None
+
+
+class MatchSerializer(MatchTimeFieldsMixin, serializers.ModelSerializer):
     is_prediction_locked = serializers.BooleanField(read_only=True)
     time_until_lock = serializers.DurationField(read_only=True)
     can_predict = serializers.BooleanField(read_only=True)
-    
+
     class Meta:
         model = Match
         fields = [
             'id', 'team_a_name', 'team_a_code', 'team_b_name', 'team_b_code',
-            'start_time', 'status', 'score_a', 'score_b', 'venue',
+            'start_time', 'date', 'time', 'status', 'score_a', 'score_b', 'venue',
             'tournament_name', 'tournament_year', 'group',
             # 'extra_time', 'final_whistle_time',  # Temporarily commented out until migration runs
-            'is_locked', 'lock_override_time', 'is_prediction_locked', 
+            'is_locked', 'lock_override_time', 'is_prediction_locked',
             'time_until_lock', 'can_predict', 'created_at', 'updated_at'
         ]
 
 
-class MatchListSerializer(serializers.ModelSerializer):
+class MatchListSerializer(MatchTimeFieldsMixin, serializers.ModelSerializer):
     is_prediction_locked = serializers.BooleanField(read_only=True)
     time_until_lock_minutes = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Match
         fields = [
             'id', 'team_a_name', 'team_a_code', 'team_b_name', 'team_b_code',
-            'start_time', 'status', 'score_a', 'score_b', 'venue',
+            'start_time', 'date', 'time', 'status', 'score_a', 'score_b', 'venue',
             'tournament_name', 'tournament_year', 'group',
             # 'extra_time', 'final_whistle_time',  # Temporarily commented out until migration runs
             'is_prediction_locked', 'time_until_lock_minutes'
         ]
-    
+
     def get_time_until_lock_minutes(self, obj):
         time_until = obj.time_until_lock
         if time_until:
@@ -58,17 +70,17 @@ class MatchListSerializer(serializers.ModelSerializer):
         return 0
 
 
-class MatchDetailSerializer(serializers.ModelSerializer):
+class MatchDetailSerializer(MatchTimeFieldsMixin, serializers.ModelSerializer):
     is_prediction_locked = serializers.BooleanField(read_only=True)
     time_until_lock = serializers.DurationField(read_only=True)
     can_predict = serializers.BooleanField(read_only=True)
-    
+
     class Meta:
         model = Match
         fields = [
             'id', 'team_a_name', 'team_a_code', 'team_b_name', 'team_b_code',
-            'start_time', 'status', 'score_a', 'score_b', 'venue',
+            'start_time', 'date', 'time', 'status', 'score_a', 'score_b', 'venue',
             'tournament_name', 'tournament_year', 'group',
-            'is_locked', 'lock_override_time', 'is_prediction_locked', 
+            'is_locked', 'lock_override_time', 'is_prediction_locked',
             'time_until_lock', 'can_predict', 'created_at', 'updated_at'
         ]

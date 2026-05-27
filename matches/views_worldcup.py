@@ -133,3 +133,28 @@ def import_teams_to_db(request):
 
     except requests.exceptions.RequestException as e:
         return JsonResponse({'error': 'Failed to import teams', 'message': str(e)}, status=502)
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def import_matches_to_db(request):
+    """Import WC2026 matches from the API into the local database."""
+    from .services import fetch_worldcup_matches, sync_worldcup_matches
+
+    api_key = getattr(settings, 'WC2026_API_KEY', '')
+    if not api_key:
+        return JsonResponse({'error': API_KEY_NOT_CONFIGURED}, status=500)
+
+    try:
+        raw_matches = fetch_worldcup_matches()
+        created, updated, skipped = sync_worldcup_matches(raw_matches)
+        return JsonResponse({
+            'success': True,
+            'created': created,
+            'updated': updated,
+            'skipped': skipped,
+            'total_in_db': created + updated,
+        })
+
+    except requests.exceptions.RequestException as e:
+        return JsonResponse({'error': 'Failed to import matches', 'message': str(e)}, status=502)

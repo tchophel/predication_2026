@@ -19,4 +19,5 @@ urlpatterns = [
     path('worldcup/teams/', views_worldcup.worldcup_teams, name='worldcup-teams'),
     path('worldcup/matches/', views_worldcup.worldcup_matches, name='worldcup-matches'),
     path('worldcup/import-teams/', views_worldcup.import_teams_to_db, name='worldcup-import-teams'),
+    path('worldcup/import-matches/', views_worldcup.import_matches_to_db, name='worldcup-import-matches'),
 ]

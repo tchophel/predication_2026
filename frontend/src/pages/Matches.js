@@ -472,14 +472,13 @@ export const Matches = () => {
   const [wcSearch, setWcSearch]   = useState('');
 
   // ── Time helpers ────────────────────────────────────────────────────────────
-  const convertToBhutanTime = (utcString) => {
-    const date = new Date(utcString);
-    return new Date(date.getTime() + 6 * 60 * 60 * 1000);
-  };
-
   const formatBhutanTime = (timeString) => {
-    const bhutanTime = convertToBhutanTime(timeString);
-    return bhutanTime.toLocaleString('en-US', {
+    if (!timeString) return '—';
+    const d = new Date(timeString);
+    if (Number.isNaN(d.getTime())) return '—';
+    // toLocaleString with an explicit timeZone performs the UTC→Bhutan
+    // conversion itself — no manual offset needed.
+    return d.toLocaleString('en-US', {
       timeZone: 'Asia/Thimphu',
       year: 'numeric', month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit',
@@ -688,8 +687,8 @@ export const Matches = () => {
     const awayObj   = raw.away_team  || raw.team_b  || raw.awayTeam  || {};
     const homeName  = typeof homeObj === 'string' ? homeObj : (homeObj.name || homeObj.shortName || '?');
     const awayName  = typeof awayObj === 'string' ? awayObj : (awayObj.name || awayObj.shortName || '?');
-    const homeCode  = raw.team_a_code || raw.home_code || (typeof homeObj === 'object' ? homeObj.code || homeObj.tla || '' : '') || homeName.slice(0, 3).toUpperCase();
-    const awayCode  = raw.team_b_code || raw.away_code || (typeof awayObj === 'object' ? awayObj.code || awayObj.tla || '' : '') || awayName.slice(0, 3).toUpperCase();
+    const homeCode  = raw.home_team_code || raw.team_a_code || raw.home_code || (typeof homeObj === 'object' ? homeObj.code || homeObj.tla || '' : '') || homeName.slice(0, 3).toUpperCase();
+    const awayCode  = raw.away_team_code || raw.team_b_code || raw.away_code || (typeof awayObj === 'object' ? awayObj.code || awayObj.tla || '' : '') || awayName.slice(0, 3).toUpperCase();
     const dbMatch   = dbMatchLookup[`${homeCode}|${awayCode}`] || null;
     const apiStatus = raw.status || '';
     const finished  = apiStatus === 'completed' || apiStatus === 'FINISHED' || apiStatus === 'FT';
@@ -701,7 +700,7 @@ export const Matches = () => {
       awayCode,
       homeFlag:  flagMap[homeCode] || '',
       awayFlag:  flagMap[awayCode] || '',
-      date:      raw.date || raw.start_time || raw.utcDate || raw.datetime || '',
+      date:      raw.kickoff_utc || raw.date || raw.start_time || raw.utcDate || raw.datetime || '',
       venue:     raw.venue || raw.stadium || raw.location || '',
       group:     raw.group || raw.stage || '',
       status:    finished ? 'completed' : (raw.status || 'upcoming'),
@@ -722,7 +721,7 @@ export const Matches = () => {
       const away = getTeamName(m.away_team || m.team_b || m.awayTeam).toLowerCase();
       return home.includes(q) || away.includes(q) || (m.venue || m.stadium || '').toLowerCase().includes(q);
     })
-    .toSorted((a, b) => new Date(a.date || a.start_time || a.utcDate || 0) - new Date(b.date || b.start_time || b.utcDate || 0))
+    .toSorted((a, b) => new Date(a.kickoff_utc || a.date || a.start_time || a.utcDate || 0) - new Date(b.kickoff_utc || b.date || b.start_time || b.utcDate || 0))
     .map(normalizeWcMatch);
 
   const isGroupStage = wcStage === 'group';
