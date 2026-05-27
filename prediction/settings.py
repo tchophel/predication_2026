@@ -5,10 +5,13 @@ import sys
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
-if not os.getenv('DOCKER_ENV'):
+if not os.getenv('DOCKER_ENV') and not os.getenv('VERCEL'):
     # Local development - use .env.local
-    from dotenv import load_dotenv
-    load_dotenv(BASE_DIR / '.env.local')
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(BASE_DIR / '.env.local')
+    except ImportError:
+        pass
 
 from decouple import config
 
