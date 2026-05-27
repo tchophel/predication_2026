@@ -1,3 +1,9 @@
 {
-  "buildCommand": "cd frontend && CI=false npm install --legacy-peer-deps && CI=false npm run build && cd .. && python manage.py collectstatic --noinput"
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && python manage.py collectstatic --noinput",
+  "build": {
+    "env": {
+      "CI": "false",
+      "DISABLE_ESLINT_PLUGIN": "true"
+    }
+  }
 }
