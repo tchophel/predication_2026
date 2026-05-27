@@ -1,9 +1,6 @@
 {
-  "buildCommand": "set -e && echo '===STEP1=cd frontend===' && cd frontend && echo '===STEP2=npm install===' && npm install --legacy-peer-deps && echo '===STEP3=npm run build===' && npm run build && echo '===STEP4=DONE==='",
   "build": {
     "env": {
-      "CI": "false",
-      "DISABLE_ESLINT_PLUGIN": "true",
       "DISABLE_COLLECTSTATIC": "1"
     }
   }
