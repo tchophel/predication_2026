@@ -1,10 +1,11 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.template import TemplateDoesNotExist
 import os
 
 urlpatterns = [
@@ -23,11 +24,12 @@ urlpatterns = [
 def react_frontend(request):
     try:
         return render(request, 'index.html')
-    except:
+    except TemplateDoesNotExist:
         return JsonResponse({'message': 'Match Prediction API', 'docs': '/api/docs/'})
 
 urlpatterns += [
     path('', react_frontend),
+    re_path(r'^(?!api/|admin/|static/|media/).*$', react_frontend),
 ]
 
 if settings.DEBUG:

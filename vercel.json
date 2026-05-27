@@ -1,10 +1,3 @@
 {
-  "build": {
-    "env": {
-      "DISABLE_COLLECTSTATIC": "1"
-    }
-  },
-  "env": {
-    "DISABLE_COLLECTSTATIC": "1"
-  }
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build && cd .. && python manage.py collectstatic --noinput"
 }
